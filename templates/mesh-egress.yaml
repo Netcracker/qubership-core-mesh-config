@@ -1,9 +1,14 @@
-{{ if not .Values.SKIP_EGRESS_GATEWAY_CREATION }}
+{{- if eq .Values.deploy_feature_flags.core.serviceMeshType "ISTIO" }}
+{{- if not .Values.SKIP_EGRESS_GATEWAY_CREATION }}
 ---
 kind: Service
 apiVersion: v1
 metadata:
-    name: '{{ .Values.EGRESS_FB_SERVICE_NAME }}'
+  name: '{{ .Values.EGRESS_FB_SERVICE_NAME }}'
+  annotations:
+    helm.sh/hook: "pre-install, pre-upgrade"
+    helm.sh/hook-weight: "-80"
+    helm.sh/hook-delete-policy: "before-hook-creation"    
 spec:
   ports:
     - name: web
@@ -52,14 +57,14 @@ apiVersion: gateway.networking.k8s.io/v1
 kind: Gateway
 metadata:
   name: ns-{{ .Values.ISTIO_EGRESS_GATEWAY_NAME }}
+  annotations:
+    helm.sh/hook: "pre-install, pre-upgrade"
+    helm.sh/hook-weight: "-100"
+    helm.sh/hook-delete-policy: "before-hook-creation"
+    networking.istio.io/service-type: ClusterIP
 spec:
   gatewayClassName: istio
   listeners:
-  - name: tls
-    protocol: TLS
-    port: 443
-    tls:
-      mode: Passthrough
   - name: http
     port: 8080
     protocol: HTTP
@@ -91,4 +96,5 @@ spec:
     backendRefs:
     - name: '{{ .Values.EGRESS_FB_SERVICE_NAME }}'
       port: 8080
-{{ end }}
+{{- end }}
+{{- end }}

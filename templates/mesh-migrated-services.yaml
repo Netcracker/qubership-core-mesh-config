@@ -1,3 +1,4 @@
+{{- if eq .Values.deploy_feature_flags.core.serviceMeshType "ISTIO" }}
 ---
 kind: Service
 apiVersion: v1
@@ -49,4 +50,5 @@ spec:
   ipFamilies:
     - IPv4
   ipFamilyPolicy: SingleStack
-  internalTrafficPolicy: Cluster 
+  internalTrafficPolicy: Cluster
+{{- end }}
