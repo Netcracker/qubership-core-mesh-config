@@ -8,6 +8,12 @@ metadata:
     helm.sh/hook: "pre-install, pre-upgrade"
     helm.sh/hook-weight: "-80"
     helm.sh/hook-delete-policy: "before-hook-creation"        
+  labels:
+    app.kubernetes.io/name: '{{ .Values.PUBLIC_FB_SERVICE_NAME }}'
+    app.kubernetes.io/instance: '{{ cat .Values.PUBLIC_FB_SERVICE_NAME "-" .Values.NAMESPACE | nospace | trunc 63 | trimSuffix "-" }}'
+    app.kubernetes.io/component: '{{ .Values.SERVICE_NAME }}'
+    app.kubernetes.io/part-of: '{{ .Values.APPLICATION_NAME }}'
+    app.kubernetes.io/managed-by: Helm
 spec:
   ports:
     - name: web
@@ -33,7 +39,13 @@ metadata:
   annotations:
     helm.sh/hook: "pre-install, pre-upgrade"
     helm.sh/hook-weight: "-80"
-    helm.sh/hook-delete-policy: "before-hook-creation"       
+    helm.sh/hook-delete-policy: "before-hook-creation"
+  labels:
+    app.kubernetes.io/name: '{{ .Values.PRIVATE_FB_SERVICE_NAME }}'
+    app.kubernetes.io/instance: '{{ cat .Values.PRIVATE_FB_SERVICE_NAME "-" .Values.NAMESPACE | nospace | trunc 63 | trimSuffix "-" }}'
+    app.kubernetes.io/component: '{{ .Values.SERVICE_NAME }}'
+    app.kubernetes.io/part-of: '{{ .Values.APPLICATION_NAME }}'
+    app.kubernetes.io/managed-by: Helm
 spec:
   ports:
     - name: web
