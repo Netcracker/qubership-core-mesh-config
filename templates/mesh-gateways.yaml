@@ -10,50 +10,14 @@ metadata:
     helm.sh/hook-delete-policy: "before-hook-creation"
     networking.istio.io/service-type: ClusterIP
   labels:
-    app.kubernetes.io/name: '{{ .Values.ISTIO_PUBLIC_GATEWAY_NAME }}'
-    app.kubernetes.io/instance: '{{ cat .Values.ISTIO_PUBLIC_GATEWAY_NAME "-" .Values.NAMESPACE | nospace | trunc 63 | trimSuffix "-" }}'
-    app.kubernetes.io/component: '{{ .Values.SERVICE_NAME }}'
-    app.kubernetes.io/version: '{{ .Chart.version }}'
-    app.kubernetes.io/part-of: '{{ .Values.APPLICATION_NAME }}'
-    app.kubernetes.io/managed-by: 'Helm'
-    app.kubernetes.io/processed-by-operator: 'istiod'
+    {{- include "myapp.labels" (dict "root" . "name" .Values.ISTIO_PUBLIC_GATEWAY_NAME "processedByOperator" true) | nindent 4 }}  
 spec:
   gatewayClassName: istio
   infrastructure:
-    labels:
-      app.kubernetes.io/name: '{{ .Values.ISTIO_PUBLIC_GATEWAY_NAME }}'
-    podTemplate:
-      metadata:
-        labels:
-          app.kubernetes.io/name: '{{ .Values.ISTIO_PUBLIC_GATEWAY_NAME }}'
-      spec:
-        containers:
-        - name: istio-proxy
-          resources:
-            requests:
-              cpu: {{ index .Values.gatewayProfiles .Values.GATEWAY_PROFILE "cpuRequest" | quote }}
-              memory: {{ index .Values.gatewayProfiles .Values.GATEWAY_PROFILE "memRequest" | quote }}
-            limits:
-              cpu: {{ index .Values.gatewayProfiles .Values.GATEWAY_PROFILE "cpuLimit" | quote }}
-              memory: {{ index .Values.gatewayProfiles .Values.GATEWAY_PROFILE "memLimit" | quote }}
-        topologySpreadConstraints:
-{{- if .Values.CLOUD_TOPOLOGIES }}
-{{- range $v := .Values.CLOUD_TOPOLOGIES }}
-          - topologyKey: {{ $v.topologyKey }}
-            maxSkew: {{ $v.maxSkew | default 1 }}
-            whenUnsatisfiable: {{ $v.whenUnsatisfiable | default "ScheduleAnyway" }}
-            labelSelector:
-              matchLabels:
-                name: '{{ .Values.ISTIO_PUBLIC_GATEWAY_NAME }}'
-{{- end }}
-{{- else }}
-          - maxSkew: 1
-            topologyKey: '{{ .Values.CLOUD_TOPOLOGY_KEY }}'
-            whenUnsatisfiable: ScheduleAnyway
-            labelSelector:
-              matchLabels:
-                app.kubernetes.io/name: '{{ .Values.ISTIO_PUBLIC_GATEWAY_NAME }}'
-{{- end }}
+    parametersRef:
+      group: ""
+      kind: ConfigMap
+      name: {{ printf "%s-pod-options" .Values.ISTIO_PUBLIC_GATEWAY_NAME }}
   listeners:
   - name: http
     port: 8080
@@ -72,51 +36,14 @@ metadata:
     helm.sh/hook-delete-policy: "before-hook-creation"
     networking.istio.io/service-type: ClusterIP
   labels:
-    app.kubernetes.io/name: '{{ .Values.ISTIO_PRIVATE_GATEWAY_NAME }}'
-    app.kubernetes.io/instance: '{{ cat .Values.ISTIO_PRIVATE_GATEWAY_NAME "-" .Values.NAMESPACE | nospace | trunc 63 | trimSuffix "-" }}'
-    app.kubernetes.io/component: '{{ .Values.SERVICE_NAME }}'
-    app.kubernetes.io/version: '{{ .Chart.version }}'
-    app.kubernetes.io/part-of: '{{ .Values.APPLICATION_NAME }}'
-    app.kubernetes.io/managed-by: Helm
-    app.kubernetes.io/processed-by-operator: 'istiod'
+    {{- include "myapp.labels" (dict "root" . "name" .Values.ISTIO_PRIVATE_GATEWAY_NAME "processedByOperator" true) | nindent 4 }}  
 spec:
   gatewayClassName: istio
   infrastructure:
-    labels:
-      app.kubernetes.io/name: '{{ .Values.ISTIO_PRIVATE_GATEWAY_NAME }}'
-    podTemplate:
-      metadata:
-        labels:
-          app.kubernetes.io/name: '{{ .Values.ISTIO_PRIVATE_GATEWAY_NAME }}'
-      spec:
-        containers:
-        - name: istio-proxy
-          resources:
-            requests:
-              cpu: {{ index .Values.gatewayProfiles .Values.GATEWAY_PROFILE "cpuRequest" | quote }}
-              memory: {{ index .Values.gatewayProfiles .Values.GATEWAY_PROFILE "memRequest" | quote }}
-            limits:
-              cpu: {{ index .Values.gatewayProfiles .Values.GATEWAY_PROFILE "cpuLimit" | quote }}
-              memory: {{ index .Values.gatewayProfiles .Values.GATEWAY_PROFILE "memLimit" | quote }}
-
-        topologySpreadConstraints:
-{{- if .Values.CLOUD_TOPOLOGIES }}
-{{- range $v := .Values.CLOUD_TOPOLOGIES }}
-          - topologyKey: {{ $v.topologyKey }}
-            maxSkew: {{ $v.maxSkew | default 1 }}
-            whenUnsatisfiable: {{ $v.whenUnsatisfiable | default "ScheduleAnyway" }}
-            labelSelector:
-              matchLabels:
-                name: '{{ .Values.ISTIO_PRIVATE_GATEWAY_NAME }}'
-{{- end }}
-{{- else }}
-          - maxSkew: 1
-            topologyKey: "{{ .Values.CLOUD_TOPOLOGY_KEY }}"
-            whenUnsatisfiable: ScheduleAnyway
-            labelSelector:
-              matchLabels:
-                app.kubernetes.io/name: '{{ .Values.ISTIO_PRIVATE_GATEWAY_NAME }}'
-{{- end }}
+    parametersRef:
+      group: ""
+      kind: ConfigMap
+      name: {{ printf "%s-pod-options" .Values.ISTIO_PRIVATE_GATEWAY_NAME }}
   listeners:
   - name: http
     port: 8080

@@ -1,3 +1,4 @@
+---
 ISTIO_PRIVATE_GATEWAY_NAME: private-gateway
 ISTIO_PUBLIC_GATEWAY_NAME: public-gateway
 PUBLIC_FB_SERVICE_NAME: public-fallback-service
@@ -10,7 +11,7 @@ PRIVATE_GW_ROUTE_NAME: fallback-to-private-gateway
 PUBLIC_GW_ROUTE_NAME: fallback-to-public-gateway
 
 ISTIO_EGRESS_GATEWAY_NAME: egress-gateway
-EGRESS_FB_SERVICE_NAME: egress-fallback-service 
+EGRESS_FB_SERVICE_NAME: egress-fallback-service
 EGRESS_GATEWAY_SERVICE_NAME: "egress-gateway"
 EGRESS_GATEWAY_SERVICE: "egress-gateway-gateway"
 
@@ -22,22 +23,6 @@ SKIP_EGRESS_GATEWAY_CREATION: false
 SERVICE_NAME: "qubership-core-mesh"
 deploy_feature_flags:
   core:
-    serviceMeshType: "CORE"  
+    serviceMeshType: "ISTIO"    # or "CORE to disable"
 
 CLOUD_TOPOLOGY_KEY: kubernetes.io/hostname
-HPA_ENABLED: false
-REPLICAS: 1
-GATEWAY_PROFILE: dev  # or prod
-
-gatewayProfiles:
-  prod:
-    cpuRequest: 500m
-    cpuLimit: 2
-    memRequest: 512Mi
-    memLimit: 1Gi
-
-  dev:
-    cpuRequest: 200m
-    cpuLimit: 1
-    memRequest: 256Mi
-    memLimit: 512Mi

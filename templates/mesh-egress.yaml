@@ -10,12 +10,7 @@ metadata:
     helm.sh/hook-weight: "-80"
     helm.sh/hook-delete-policy: "before-hook-creation"    
   labels:
-    app.kubernetes.io/name: '{{ .Values.EGRESS_FB_SERVICE_NAME }}'
-    app.kubernetes.io/instance: '{{ cat .Values.EGRESS_FB_SERVICE_NAME "-" .Values.NAMESPACE | nospace | trunc 63 | trimSuffix "-" }}'
-    app.kubernetes.io/component: '{{ .Values.SERVICE_NAME }}'
-    app.kubernetes.io/version: '{{ .Chart.version }}'
-    app.kubernetes.io/part-of: '{{ .Values.APPLICATION_NAME }}'
-    app.kubernetes.io/managed-by: Helm
+    {{- include "myapp.labels" (dict "root" $ "name" .Values.EGRESS_FB_SERVICE_NAME "processedByOperator" false) | nindent 4 }}
 spec:
   ports:
     - name: web
@@ -43,12 +38,7 @@ metadata:
     helm.sh/hook-weight: "110"
     helm.sh/hook-delete-policy: "before-hook-creation"
   labels:
-    app.kubernetes.io/name: '{{ .Values.EGRESS_GATEWAY_SERVICE_NAME }}'
-    app.kubernetes.io/instance: '{{ cat .Values.EGRESS_GATEWAY_SERVICE_NAME "-" .Values.NAMESPACE | nospace | trunc 63 | trimSuffix "-" }}'
-    app.kubernetes.io/component: '{{ .Values.SERVICE_NAME }}'
-    app.kubernetes.io/version: '{{ .Chart.version }}'
-    app.kubernetes.io/part-of: '{{ .Values.APPLICATION_NAME }}'
-    app.kubernetes.io/managed-by: Helm
+    {{- include "myapp.labels" (dict "root" $ "name" .Values.EGRESS_GATEWAY_SERVICE_NAME "processedByOperator" false) | nindent 4 }}
 spec:
   ports:
     - name: web
@@ -56,7 +46,7 @@ spec:
       port: 8080
       targetPort: 8080
   selector:
-    gateway.networking.k8s.io/gateway-name: 'ns-{{ .Values.ISTIO_EGRESS_GATEWAY_NAME }}'
+    gateway.networking.k8s.io/gateway-name: {{ printf "ns-%s" .Values.ISTIO_EGRESS_GATEWAY_NAME | quote }}
   clusterIP: None
   clusterIPs:
     - None
@@ -70,36 +60,69 @@ spec:
 apiVersion: gateway.networking.k8s.io/v1
 kind: Gateway
 metadata:
-  name: ns-{{ .Values.ISTIO_EGRESS_GATEWAY_NAME }}
+  name: {{ printf "ns-%s" .Values.ISTIO_EGRESS_GATEWAY_NAME }}
   annotations:
     helm.sh/hook: "pre-install, pre-upgrade"
     helm.sh/hook-weight: "-100"
     helm.sh/hook-delete-policy: "before-hook-creation"
     networking.istio.io/service-type: ClusterIP
   labels:
-    app.kubernetes.io/name: 'ns-{{ .Values.ISTIO_EGRESS_GATEWAY_NAME }}'
-    app.kubernetes.io/instance: 'ns-{{ cat .Values.ISTIO_EGRESS_GATEWAY_NAME "-" .Values.NAMESPACE | nospace | trunc 63 | trimSuffix "-" }}'
-    app.kubernetes.io/component: '{{ .Values.SERVICE_NAME }}'
-    app.kubernetes.io/version: '{{ .Chart.version }}'
-    app.kubernetes.io/part-of: '{{ .Values.APPLICATION_NAME }}'
-    app.kubernetes.io/managed-by: Helm
-    app.kubernetes.io/processed-by-operator: 'istiod'
+    {{- $gatewayName := printf "ns-%s" .Values.EGRESS_GATEWAY_SERVICE_NAME | trunc 63 -}}
+    {{- include "myapp.labels" (dict "root" $ "name" $gatewayName "processedByOperator" true) | nindent 4 }}
 spec:
   gatewayClassName: istio
+  infrastructure:
+    parametersRef:
+      group: ""
+      kind: ConfigMap
+      name: {{ printf "%s-pod-options" .Values.ISTIO_EGRESS_GATEWAY_NAME }}
   listeners:
-  - name: tls
-    protocol: TLS
-    port: 443
-    tls:
-      mode: Passthrough
   - name: http
     port: 8080
     protocol: HTTP
 ---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ printf "%s-pod-options" .Values.ISTIO_EGRESS_GATEWAY_NAME }}
+data:
+  deployment: |
+    spec:
+      replicas: {{ default 1 .Values.REPLICAS}}
+      template:
+        spec:
+          containers:
+          - name: istio-proxy
+            resources:
+              requests:
+                cpu: {{ .Values.CPU_REQUEST | quote }}
+                memory: {{ .Values.EGRESS_GW_MEMORY_LIMIT | quote }}
+              limits:
+                cpu: {{ .Values.EGRESS_GW_CPU_LIMIT | quote }}
+                memory: {{ .Values.EGRESS_GW_MEMORY_LIMIT | quote }}
+          topologySpreadConstraints:
+{{- if .Values.CLOUD_TOPOLOGIES }}
+{{- range $v := .Values.CLOUD_TOPOLOGIES }}
+          - topologyKey: {{ $v.topologyKey }}
+            maxSkew: {{ $v.maxSkew | default 1 }}
+            whenUnsatisfiable: {{ $v.whenUnsatisfiable | default "ScheduleAnyway" }}
+            labelSelector:
+              matchLabels:
+                name: {{ printf "ns-%s" .Values.ISTIO_EGRESS_GATEWAY_NAME }}
+{{- end }}
+{{- else }}
+          - maxSkew: 1
+            topologyKey: '{{ .Values.CLOUD_TOPOLOGY_KEY }}'
+            whenUnsatisfiable: ScheduleAnyway
+            labelSelector:
+              matchLabels:
+                gateway.networking.k8s.io/gateway-name: {{ printf "ns-%s" .Values.ISTIO_EGRESS_GATEWAY_NAME }}
+{{- end }}
+---
 apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
 metadata:
-  name: '{{ .Values.ISTIO_EGRESS_GATEWAY_NAME }}-route'
+  name: {{ printf "%s-route" .Values.ISTIO_EGRESS_GATEWAY_NAME }}
   annotations:
     helm.sh/hook: "pre-install, pre-upgrade"
     helm.sh/hook-weight: "-60"
@@ -111,16 +134,11 @@ metadata:
       {.status.parents[*].conditions[?(@.type=="Accepted")].status} == "False" ||
       {.status.parents[*].conditions[?(@.type=="ResolvedRefs")].status} == "False"
   labels:
-    app.kubernetes.io/name: '{{ .Values.ISTIO_EGRESS_GATEWAY_NAME }}-route'
-    app.kubernetes.io/instance: '{{ cat .Values.ISTIO_EGRESS_GATEWAY_NAME "-" .Values.NAMESPACE | nospace | trunc 63 | trimSuffix "-" }}'
-    app.kubernetes.io/component: '{{ .Values.SERVICE_NAME }}'
-    app.kubernetes.io/version: '{{ .Chart.version }}'
-    app.kubernetes.io/part-of: '{{ .Values.APPLICATION_NAME }}'
-    app.kubernetes.io/managed-by: Helm
-    app.kubernetes.io/processed-by-operator: 'istiod'
+    {{- $routeName := printf "%s-route" .Values.EGRESS_GATEWAY_SERVICE_NAME | trunc 63 -}}
+    {{- include "myapp.labels" (dict "root" $ "name" $routeName "processedByOperator" true) | nindent 4 }}
 spec:
   parentRefs:
-  - name: ns-{{ .Values.ISTIO_EGRESS_GATEWAY_NAME }}
+  - name: {{ printf "ns-%s" .Values.ISTIO_EGRESS_GATEWAY_NAME }}
   rules:
   - matches:
     - path:
