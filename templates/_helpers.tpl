@@ -9,12 +9,13 @@
 
 {{- /*
 Common labels - generates standard Kubernetes labels
-Usage: include "myapp.labels" (dict "root" . "name" "component" "instance" $)
+Usage: include "myapp.labels" (dict "root" . "name" "custom_name" "processedByOperator" false "context" $ )
 Parameters:
   - root: The root context (usually .)
   - name: Override for app.kubernetes.io/name (optional)
   - component: Override for app.kubernetes.io/component (optional)
   - instance: Override for app.kubernetes.io/instance (optional)
+  - processedByOperator: set to true if app.kubernetes.io/processed-by-operator label is required
 */}}
 {{- define "myapp.labels" -}}
 {{- $root := .root -}}
