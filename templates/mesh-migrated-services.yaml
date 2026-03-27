@@ -9,7 +9,7 @@ metadata:
     helm.sh/hook-weight: "110"
     helm.sh/hook-delete-policy: "before-hook-creation"
   labels:
-    {{- include "myapp.labels" (dict "root" . "name" .Values.PUBLIC_SERVICE_NAME "processedByOperator" false) | nindent 4 }}  
+    {{- include "mesh.labels" (dict "root" . "name" .Values.PUBLIC_SERVICE_NAME ) | nindent 4 }}
 spec:
   ports:
     - name: web
@@ -37,7 +37,7 @@ metadata:
     helm.sh/hook-weight: "110"
     helm.sh/hook-delete-policy: "before-hook-creation"
   labels:
-    {{- include "myapp.labels" (dict "root" . "name" .Values.PRIVATE_SERVICE_NAME "processedByOperator" false) | nindent 4 }}  
+    {{- include "mesh.labels" (dict "root" . "name" .Values.PRIVATE_SERVICE_NAME ) | nindent 4 }}
 spec:
   ports:
     - name: web

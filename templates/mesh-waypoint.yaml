@@ -4,12 +4,12 @@ kind: Gateway
 metadata:
   name: '{{ .Values.WAYPOINT_NAME }}'
   labels:
-    {{- include "myapp.labels" (dict "root" . "name" .Values.WAYPOINT_NAME "processedByOperator" true) | nindent 4 }}
+    {{- include "mesh.labels" (dict "root" . "name" .Values.WAYPOINT_NAME "processedByOperator" true) | nindent 4 }}
     istio.io/waypoint-for: service
 spec:
   gatewayClassName: istio-waypoint
   listeners:
-  - name: mesh
-    port: 15008
-    protocol: HBONE
+    - name: mesh
+      port: 15008
+      protocol: HBONE
 {{- end }}

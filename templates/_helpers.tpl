@@ -9,26 +9,27 @@
 
 {{- /*
 Common labels - generates standard Kubernetes labels
-Usage: include "myapp.labels" (dict "root" . "name" "custom_name" "processedByOperator" false "context" $ )
+Usage: include "mesh.labels" (dict "root" . "name" "custom_name" "processedByOperator" true "context" $ )
 Parameters:
   - root: The root context (usually .)
   - name: Override for app.kubernetes.io/name (optional)
   - component: Override for app.kubernetes.io/component (optional)
   - instance: Override for app.kubernetes.io/instance (optional)
-  - processedByOperator: set to true if app.kubernetes.io/processed-by-operator label is required
+  - processedByOperator: set to true if app.kubernetes.io/processed-by-operator label is required (optional)
 */}}
-{{- define "myapp.labels" -}}
+{{- define "mesh.labels" -}}
 {{- $root := .root -}}
 {{- $name := .name | default $root.Values.SERVICE_NAME -}}
 {{- $component := .component | default $root.Values.SERVICE_NAME -}}
 {{- $instance := .instance | default (printf "%s-%s" $name ($root.Values.NAMESPACE | default "default")) | trunc 63 | trimSuffix "-" -}}
+{{- $processedByOperator := .processedByOperator | default false -}}
 app.kubernetes.io/name: {{ $name | quote }}
 app.kubernetes.io/instance: {{ $instance | quote }}
 app.kubernetes.io/component: {{ $component | quote }}
 app.kubernetes.io/version: {{ $root.Chart.Version | quote }}
 app.kubernetes.io/part-of: {{ $root.Values.APPLICATION_NAME | quote }}
 app.kubernetes.io/managed-by: {{ "Helm" | quote }}
-{{- if .processedByOperator }}
+{{- if $processedByOperator }}
 app.kubernetes.io/processed-by-operator: {{ "istiod" | quote }}
 {{- end -}}
 {{- end -}}

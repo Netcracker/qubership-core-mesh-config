@@ -8,9 +8,9 @@ metadata:
   annotations:
     helm.sh/hook: "pre-install, pre-upgrade"
     helm.sh/hook-weight: "-80"
-    helm.sh/hook-delete-policy: "before-hook-creation"    
+    helm.sh/hook-delete-policy: "before-hook-creation"
   labels:
-    {{- include "myapp.labels" (dict "root" $ "name" .Values.EGRESS_FB_SERVICE_NAME "processedByOperator" false) | nindent 4 }}
+    {{- include "mesh.labels" (dict "root" . "name" .Values.EGRESS_FB_SERVICE_NAME ) | nindent 4 }}
 spec:
   ports:
     - name: web
@@ -38,7 +38,7 @@ metadata:
     helm.sh/hook-weight: "110"
     helm.sh/hook-delete-policy: "before-hook-creation"
   labels:
-    {{- include "myapp.labels" (dict "root" $ "name" .Values.EGRESS_GATEWAY_SERVICE_NAME "processedByOperator" false) | nindent 4 }}
+    {{- include "mesh.labels" (dict "root" . "name" .Values.EGRESS_GATEWAY_SERVICE_NAME ) | nindent 4 }}
 spec:
   ports:
     - name: web
@@ -67,7 +67,7 @@ metadata:
     helm.sh/hook-delete-policy: "before-hook-creation"
   labels:
     {{- $gatewayName := printf "ns-%s" .Values.EGRESS_GATEWAY_SERVICE_NAME | trunc 63 -}}
-    {{- include "myapp.labels" (dict "root" $ "name" $gatewayName "processedByOperator" true) | nindent 4 }}
+    {{- include "mesh.labels" (dict "root" . "name" $gatewayName "processedByOperator" true) | nindent 4 }}
 spec:
   gatewayClassName: istio
   infrastructure:
@@ -76,9 +76,9 @@ spec:
       kind: ConfigMap
       name: {{ printf "%s-pod-options" .Values.ISTIO_EGRESS_GATEWAY_NAME }}
   listeners:
-  - name: http
-    port: 8080
-    protocol: HTTP
+    - name: http
+      port: 8080
+      protocol: HTTP
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -128,23 +128,23 @@ metadata:
     helm.sh/hook-delete-policy: "before-hook-creation"
     helm.sh/readiness-success: |
       {.status.parents[*].conditions[?(@.type=="Accepted")].status} != "False" &&
-      {.status.parents[*].conditions[?(@.type=="ResolvedRefs")].status} != "False"    
+      {.status.parents[*].conditions[?(@.type=="ResolvedRefs")].status} != "False"
     helm.sh/readiness-failure: |
       {.status.parents[*].conditions[?(@.type=="Accepted")].status} == "False" ||
       {.status.parents[*].conditions[?(@.type=="ResolvedRefs")].status} == "False"
   labels:
     {{- $routeName := printf "%s-route" .Values.EGRESS_GATEWAY_SERVICE_NAME | trunc 63 -}}
-    {{- include "myapp.labels" (dict "root" $ "name" $routeName "processedByOperator" true) | nindent 4 }}
+    {{- include "mesh.labels" (dict "root" . "name" $routeName "processedByOperator" true) | nindent 4 }}
 spec:
   parentRefs:
-  - name: {{ printf "ns-%s" .Values.ISTIO_EGRESS_GATEWAY_NAME }}
+    - name: {{ printf "ns-%s" .Values.ISTIO_EGRESS_GATEWAY_NAME }}
   rules:
-  - matches:
-    - path:
-        type: PathPrefix
-        value: /
-    backendRefs:
-    - name: '{{ .Values.EGRESS_FB_SERVICE_NAME }}'
-      port: 8080
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      backendRefs:
+        - name: '{{ .Values.EGRESS_FB_SERVICE_NAME }}'
+          port: 8080
 {{- end }}
 {{- end }}
