@@ -125,12 +125,7 @@ metadata:
     helm.sh/hook: "pre-install, pre-upgrade"
     helm.sh/hook-weight: "-60"
     helm.sh/hook-delete-policy: "before-hook-creation"
-    helm.sh/readiness-success: |
-      {.status.parents[*].conditions[?(@.type=="Accepted")].status} != "False" &&
-      {.status.parents[*].conditions[?(@.type=="ResolvedRefs")].status} != "False"
-    helm.sh/readiness-failure: |
-      {.status.parents[*].conditions[?(@.type=="Accepted")].status} == "False" ||
-      {.status.parents[*].conditions[?(@.type=="ResolvedRefs")].status} == "False"
+    {{- include "mesh.annotations.route" . | nindent 4 }}
   labels:
     {{- $routeName := printf "%s-route" .Values.EGRESS_GATEWAY_SERVICE_NAME | trunc 63 -}}
     {{- include "mesh.labels" (dict "root" . "name" $routeName "processedByOperator" true) | nindent 4 }}

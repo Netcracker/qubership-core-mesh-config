@@ -9,7 +9,7 @@ metadata:
     helm.sh/hook-weight: "-80"
     helm.sh/hook-delete-policy: "before-hook-creation"
   labels:
-    {{- include "mesh.labels" (dict "root" . "name" .Values.PUBLIC_FB_SERVICE_NAME) | nindent 4 }}
+    {{ include "mesh.labels.service" (dict "root" . "name" .Values.PUBLIC_FB_SERVICE_NAME) | nindent 4  }}
 spec:
   ports:
     - name: web
@@ -37,7 +37,7 @@ metadata:
     helm.sh/hook-weight: "-80"
     helm.sh/hook-delete-policy: "before-hook-creation"
   labels:
-    {{- include "mesh.labels" (dict "root" . "name" .Values.PRIVATE_FB_SERVICE_NAME ) | nindent 4 }}
+    {{- include "mesh.labels.service" (dict "root" . "name" .Values.PRIVATE_FB_SERVICE_NAME ) | nindent 4  }}
 spec:
   ports:
     - name: web
