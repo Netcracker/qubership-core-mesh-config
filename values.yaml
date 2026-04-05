@@ -3,9 +3,7 @@ ISTIO_PUBLIC_GATEWAY_NAME: public-gateway
 PUBLIC_FB_SERVICE_NAME: public-fallback-service
 PRIVATE_FB_SERVICE_NAME: private-fallback-service
 PUBLIC_SERVICE: "public-frontend-gateway"
-PUBLIC_SERVICE_NAME: "public-gateway-service"
 PRIVATE_SERVICE: "private-frontend-gateway"
-PRIVATE_SERVICE_NAME: "private-gateway-service"
 PRIVATE_GW_ROUTE_NAME: fallback-to-private-gateway
 PUBLIC_GW_ROUTE_NAME: fallback-to-public-gateway
 
@@ -17,6 +15,4 @@ EGRESS_GATEWAY_SERVICE: "egress-gateway-gateway"
 # contract parameters - do not change name
 SKIP_EGRESS_GATEWAY_CREATION: false
 SERVICE_NAME: "qubership-core-mesh"
-deploy_feature_flags:
-  core:
-    serviceMeshType: "CORE"  
+SERVICE_MESH_TYPE: "Core"  
