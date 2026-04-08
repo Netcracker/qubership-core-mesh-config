@@ -103,3 +103,49 @@ spec:
           periodSeconds: {{ .root.Values.HPA_SCALING_DOWN_PODS_PERIOD_SECONDS }}
 {{- end }}
 {{- end }}
+
+
+{{- define "mesh.gateway.deploymentCustomizationMap" -}}
+{{- $root := .root -}}
+{{- $name := .name | default $root.Values.SERVICE_NAME -}}
+{{- $values := .values -}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ printf "%s-pod-options" $name }}
+  labels:
+    {{- include "mesh.labels" (dict "root" $values.root "name" (printf "%s-pod-options" $name | trunc 63)) | nindent 4 }}
+data:
+  deployment: |
+    spec:
+      replicas: {{ default 1 $values.replicas }}
+      template:
+        spec:
+          containers:
+          - name: istio-proxy
+            resources:
+              requests:
+                cpu: {{ $values.cpuRequest | quote }}
+                memory: {{ $values.memoryLimit | quote }}
+              limits:
+                cpu: {{ $values.cpuLimit | quote }}
+                memory: {{ $values.memoryLimit | quote }}
+          topologySpreadConstraints:
+{{- if $values.topologies }}
+{{- range $v := $values.topologies }}
+          - topologyKey: {{ $v.topologyKey }}
+            maxSkew: {{ $v.maxSkew | default 1 }}
+            whenUnsatisfiable: {{ $v.whenUnsatisfiable | default "ScheduleAnyway" }}
+            labelSelector:
+              matchLabels:
+                name: {{ $name }}
+{{- end }}
+{{- else }}
+          - maxSkew: 1
+            topologyKey: {{ $values.topologyKey | default "kubernetes.io/hostname" }}
+            whenUnsatisfiable: ScheduleAnyway
+            labelSelector:
+              matchLabels:
+                gateway.networking.k8s.io/gateway-name: {{ $name }}
+{{- end }}
+{{- end -}}

@@ -29,6 +29,7 @@ spec:
   ipFamilyPolicy: SingleStack
   internalTrafficPolicy: Cluster 
 ---
+{{- $gwName := .Values.ISTIO_EGRESS_GATEWAY_NAME -}}
 kind: Service
 apiVersion: v1
 metadata:
@@ -46,7 +47,7 @@ spec:
       port: 8080
       targetPort: 8080
   selector:
-    gateway.networking.k8s.io/gateway-name: {{ .Values.ISTIO_EGRESS_GATEWAY_NAME | quote }}
+    gateway.networking.k8s.io/gateway-name: {{ $gwName | quote }}
   clusterIP: None
   clusterIPs:
     - None
@@ -60,7 +61,7 @@ spec:
 apiVersion: gateway.networking.k8s.io/v1
 kind: Gateway
 metadata:
-  name: {{ .Values.ISTIO_EGRESS_GATEWAY_NAME }}
+  name: {{ $gwName }}
   annotations:
     helm.sh/hook: "pre-install, pre-upgrade"
     helm.sh/hook-weight: "-100"
@@ -73,67 +74,39 @@ spec:
     parametersRef:
       group: ""
       kind: ConfigMap
-      name: {{ printf "%s-pod-options" .Values.ISTIO_EGRESS_GATEWAY_NAME }}
+      name: {{ printf "%s-pod-options" $gwName }}
   listeners:
     - name: http
       port: 8080
       protocol: HTTP
 ---
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: {{ printf "%s-pod-options" .Values.ISTIO_EGRESS_GATEWAY_NAME }}
-  labels:
-    {{- $configMapName := printf "%s-pod-options" .Values.ISTIO_EGRESS_GATEWAY_NAME | trunc 63 -}}
-    {{- include "mesh.labels" (dict "root" . "name" $configMapName ) | nindent 4 }}
-data:
-  deployment: |
-    spec:
-      replicas: {{ default 1 .Values.REPLICAS}}
-      template:
-        spec:
-          containers:
-          - name: istio-proxy
-            resources:
-              requests:
-                cpu: {{ .Values.CPU_REQUEST | quote }}
-                memory: {{ .Values.EGRESS_GW_MEMORY_LIMIT | quote }}
-              limits:
-                cpu: {{ .Values.EGRESS_GW_CPU_LIMIT | quote }}
-                memory: {{ .Values.EGRESS_GW_MEMORY_LIMIT | quote }}
-          topologySpreadConstraints:
-{{- if .Values.CLOUD_TOPOLOGIES }}
-{{- range $v := .Values.CLOUD_TOPOLOGIES }}
-          - topologyKey: {{ $v.topologyKey }}
-            maxSkew: {{ $v.maxSkew | default 1 }}
-            whenUnsatisfiable: {{ $v.whenUnsatisfiable | default "ScheduleAnyway" }}
-            labelSelector:
-              matchLabels:
-                name: {{ .Values.ISTIO_EGRESS_GATEWAY_NAME }}
-{{- end }}
-{{- else }}
-          - maxSkew: 1
-            topologyKey: '{{ .Values.CLOUD_TOPOLOGY_KEY }}'
-            whenUnsatisfiable: ScheduleAnyway
-            labelSelector:
-              matchLabels:
-                gateway.networking.k8s.io/gateway-name: {{ .Values.ISTIO_EGRESS_GATEWAY_NAME }}
-{{- end }}
+{{- include "mesh.gateway.deploymentCustomizationMap" (dict
+  "name" $gwName
+  "values" (dict
+    "root" .
+    "replicas" .Values.REPLICAS
+    "cpuRequest" .Values.CPU_REQUEST
+    "cpuLimit" .Values.EGRESS_GW_CPU_LIMIT
+    "memoryLimit" .Values.EGRESS_GW_MEMORY_LIMIT
+    "topologies" .Values.CLOUD_TOPOLOGIES
+    "topologyKey" .Values.CLOUD_TOPOLOGY_KEY
+  )
+) }}
 ---
 apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
 metadata:
-  name: {{ printf "%s-route" .Values.ISTIO_EGRESS_GATEWAY_NAME }}
+  name: {{ printf "%s-route" $gwName }}
   annotations:
     helm.sh/hook: "pre-install, pre-upgrade"
     helm.sh/hook-weight: "-60"
     helm.sh/hook-delete-policy: "before-hook-creation"
   labels:
-    {{- $routeName := printf "%s-route" .Values.ISTIO_EGRESS_GATEWAY_NAME | trunc 63 -}}
+    {{- $routeName := printf "%s-route" $gwName | trunc 63 -}}
     {{- include "mesh.labels" (dict "root" . "name" $routeName "processedByOperator" true) | nindent 4 }}
 spec:
   parentRefs:
-    - name: {{ .Values.ISTIO_EGRESS_GATEWAY_NAME }}
+    - name: {{ $gwName }}
   rules:
     - matches:
         - path:
