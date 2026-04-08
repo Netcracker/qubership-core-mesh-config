@@ -51,15 +51,6 @@ app.kubernetes.io/processed-by-operator: {{ "istiod" | quote }}
 {{- include "mesh.labels.common" (dict "root" $root "name" $name )}}
 {{- end -}}
 
-{{- define "mesh.annotations.route" -}}
-helm.sh/readiness-success: |
-  {.status.parents[*].conditions[?(@.type=="Accepted")].status} != "False" &&
-  {.status.parents[*].conditions[?(@.type=="ResolvedRefs")].status} != "False"
-helm.sh/readiness-failure: |
-  {.status.parents[*].conditions[?(@.type=="Accepted")].status} == "False" ||
-  {.status.parents[*].conditions[?(@.type=="ResolvedRefs")].status} == "False"
-{{- end -}}
-
 {{- define "mesh.hpa" -}}
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler

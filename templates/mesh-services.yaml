@@ -1,4 +1,4 @@
-{{- if eq .Values.deploy_feature_flags.core.serviceMeshType "ISTIO" }}
+{{- if eq .Values.SERVICE_MESH_TYPE "Istio" }}
 ---
 kind: Service
 apiVersion: v1

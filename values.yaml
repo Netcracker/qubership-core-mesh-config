@@ -21,8 +21,6 @@ WAYPOINT_NAME: waypoint
 APPLICATION_NAME: "Cloud-Core"
 SKIP_EGRESS_GATEWAY_CREATION: false
 SERVICE_NAME: "qubership-core-mesh"
-deploy_feature_flags:
-  core:
-    serviceMeshType: "ISTIO"    # or "CORE to disable"
+SERVICE_MESH_TYPE : "Istio"   # or "Core to disable"
 
 CLOUD_TOPOLOGY_KEY: kubernetes.io/hostname

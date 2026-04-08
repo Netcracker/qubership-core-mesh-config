@@ -1,7 +1,11 @@
+{{- if eq .Values.SERVICE_MESH_TYPE "Istio" }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
   name: {{ printf "%s-pod-options" .Values.ISTIO_PUBLIC_GATEWAY_NAME }}
+  labels:
+    {{- $configMapName := printf "%s-pod-options" .Values.ISTIO_PUBLIC_GATEWAY_NAME | trunc 63 -}}
+    {{- include "mesh.labels" (dict "root" . "name" $configMapName ) | nindent 4 }}
 data:
   deployment: |
     spec:
@@ -40,6 +44,9 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: {{ printf "%s-pod-options" .Values.ISTIO_PRIVATE_GATEWAY_NAME }}
+  labels:
+    {{- $configMapName := printf "%s-pod-options" .Values.ISTIO_PRIVATE_GATEWAY_NAME | trunc 63 -}}
+    {{- include "mesh.labels" (dict "root" . "name" $configMapName ) | nindent 4 }}
 data:
   deployment: |
     spec:
@@ -72,4 +79,5 @@ data:
             labelSelector:
               matchLabels:
                 gateway.networking.k8s.io/gateway-name: '{{ .Values.ISTIO_PRIVATE_GATEWAY_NAME }}'
+{{- end }}
 {{- end }}
