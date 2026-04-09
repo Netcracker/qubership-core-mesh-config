@@ -1,38 +1,80 @@
-{{- if eq .Values.deploy_feature_flags.core.serviceMeshType "ISTIO" }}
+{{- if eq .Values.SERVICE_MESH_TYPE "Istio" }}
 ---
+{{- $publicGwName := .Values.ISTIO_PUBLIC_GATEWAY_NAME -}}
 apiVersion: gateway.networking.k8s.io/v1
 kind: Gateway
 metadata:
-  name: '{{ .Values.ISTIO_PUBLIC_GATEWAY_NAME }}'
+  name: '{{ $publicGwName }}'
   annotations:
     helm.sh/hook: "pre-install, pre-upgrade"
     helm.sh/hook-weight: "-100"
     helm.sh/hook-delete-policy: "before-hook-creation"
+  labels:
+    {{- include "mesh.labels" (dict "root" . "name" $publicGwName "processedByOperator" true) | nindent 4 }}
 spec:
   gatewayClassName: istio
+  infrastructure:
+    parametersRef:
+      group: ""
+      kind: ConfigMap
+      name: {{ printf "%s-pod-options" $publicGwName }}
   listeners:
-  - name: default
-    port: 8080
-    protocol: HTTP
-    allowedRoutes:
-      namespaces:
-        from: All
+    - name: http
+      port: 8080
+      protocol: HTTP
+      allowedRoutes:
+        namespaces:
+          from: All
 ---
+{{- include "mesh.gateway.deploymentCustomizationMap" (dict
+  "name" $publicGwName
+  "values" (dict
+    "root" .
+    "replicas" .Values.REPLICAS
+    "cpuRequest" .Values.CPU_REQUEST
+    "cpuLimit" .Values.PUBLIC_GW_CPU_LIMIT
+    "memoryLimit" .Values.PUBLIC_GW_MEMORY_LIMIT
+    "topologies" .Values.CLOUD_TOPOLOGIES
+    "topologyKey" .Values.CLOUD_TOPOLOGY_KEY
+  )
+) }}
+---
+{{- $privateGwName := .Values.ISTIO_PRIVATE_GATEWAY_NAME -}}
 apiVersion: gateway.networking.k8s.io/v1
 kind: Gateway
 metadata:
-  name: '{{ .Values.ISTIO_PRIVATE_GATEWAY_NAME }}'
+  name: '{{ $privateGwName }}'
   annotations:
     helm.sh/hook: "pre-install, pre-upgrade"
     helm.sh/hook-weight: "-100"
     helm.sh/hook-delete-policy: "before-hook-creation"
+  labels:
+    {{- include "mesh.labels" (dict "root" . "name" $privateGwName "processedByOperator" true) | nindent 4 }}
 spec:
   gatewayClassName: istio
+  infrastructure:
+    parametersRef:
+      group: ""
+      kind: ConfigMap
+      name: {{ printf "%s-pod-options" $privateGwName }}
   listeners:
-  - name: default
-    port: 8080
-    protocol: HTTP
-    allowedRoutes:
-      namespaces:
-        from: All
+    - name: http
+      port: 8080
+      protocol: HTTP
+      allowedRoutes:
+        namespaces:
+          from: All
+---
+{{- include "mesh.gateway.deploymentCustomizationMap" (dict
+  "name" $privateGwName
+  "values" (dict
+    "root" .
+    "replicas" .Values.REPLICAS
+    "cpuRequest" .Values.CPU_REQUEST
+    "cpuLimit" .Values.PRIVATE_GW_CPU_LIMIT
+    "memoryLimit" .Values.PRIVATE_GW_MEMORY_LIMIT
+    "topologies" .Values.CLOUD_TOPOLOGIES
+    "topologyKey" .Values.CLOUD_TOPOLOGY_KEY
+  )
+) }}
 {{- end }}

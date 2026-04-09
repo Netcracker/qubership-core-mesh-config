@@ -1,4 +1,4 @@
-{{- if eq .Values.deploy_feature_flags.core.serviceMeshType "ISTIO" }}
+{{- if eq .Values.SERVICE_MESH_TYPE "Istio" }}
 {{- if not .Values.SKIP_EGRESS_GATEWAY_CREATION }}
 ---
 kind: Service
@@ -8,7 +8,9 @@ metadata:
   annotations:
     helm.sh/hook: "pre-install, pre-upgrade"
     helm.sh/hook-weight: "-80"
-    helm.sh/hook-delete-policy: "before-hook-creation"    
+    helm.sh/hook-delete-policy: "before-hook-creation"
+  labels:
+    {{- include "mesh.labels.service" (dict "root" . "name" .Values.EGRESS_FB_SERVICE_NAME ) | nindent 4 }}
 spec:
   ports:
     - name: web
@@ -27,14 +29,17 @@ spec:
   ipFamilyPolicy: SingleStack
   internalTrafficPolicy: Cluster 
 ---
+{{- $gwName := .Values.ISTIO_EGRESS_GATEWAY_NAME -}}
 kind: Service
 apiVersion: v1
 metadata:
-    name: '{{ .Values.EGRESS_GATEWAY_SERVICE_NAME }}'
-    annotations:
-      helm.sh/hook: "post-install, post-upgrade"
-      helm.sh/hook-weight: "110"
-      helm.sh/hook-delete-policy: "before-hook-creation"
+  name: '{{ .Values.EGRESS_GATEWAY_SERVICE_NAME }}'
+  annotations:
+    helm.sh/hook: "post-install, post-upgrade"
+    helm.sh/hook-weight: "110"
+    helm.sh/hook-delete-policy: "before-hook-creation"
+  labels:
+    {{- include "mesh.labels.service" (dict "root" . "name" .Values.EGRESS_GATEWAY_SERVICE_NAME ) | nindent 4 }}
 spec:
   ports:
     - name: web
@@ -42,7 +47,7 @@ spec:
       port: 8080
       targetPort: 8080
   selector:
-    gateway.networking.k8s.io/gateway-name: 'ns-{{ .Values.ISTIO_EGRESS_GATEWAY_NAME }}'
+    gateway.networking.k8s.io/gateway-name: {{ $gwName | quote }}
   clusterIP: None
   clusterIPs:
     - None
@@ -56,44 +61,72 @@ spec:
 apiVersion: gateway.networking.k8s.io/v1
 kind: Gateway
 metadata:
-  name: ns-{{ .Values.ISTIO_EGRESS_GATEWAY_NAME }}
+  name: {{ $gwName }}
   annotations:
     helm.sh/hook: "pre-install, pre-upgrade"
     helm.sh/hook-weight: "-100"
     helm.sh/hook-delete-policy: "before-hook-creation"
+  labels:
+    {{- include "mesh.labels" (dict "root" . "name" .Values.EGRESS_GATEWAY_SERVICE_NAME  "processedByOperator" true) | nindent 4 }}
 spec:
   gatewayClassName: istio
+  infrastructure:
+    parametersRef:
+      group: ""
+      kind: ConfigMap
+      name: {{ printf "%s-pod-options" $gwName }}
   listeners:
-  - name: http
-    port: 8080
-    protocol: HTTP
+    - name: http
+      port: 8080
+      protocol: HTTP
+---
+{{- include "mesh.gateway.deploymentCustomizationMap" (dict
+  "name" $gwName
+  "values" (dict
+    "root" .
+    "replicas" .Values.REPLICAS
+    "cpuRequest" .Values.CPU_REQUEST
+    "cpuLimit" .Values.EGRESS_GW_CPU_LIMIT
+    "memoryLimit" .Values.EGRESS_GW_MEMORY_LIMIT
+    "topologies" .Values.CLOUD_TOPOLOGIES
+    "topologyKey" .Values.CLOUD_TOPOLOGY_KEY
+  )
+) }}
 ---
 apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
 metadata:
-  name: '{{ .Values.ISTIO_EGRESS_GATEWAY_NAME }}-route'
+  name: {{ printf "%s-route" $gwName }}
   annotations:
     helm.sh/hook: "pre-install, pre-upgrade"
     helm.sh/hook-weight: "-60"
     helm.sh/hook-delete-policy: "before-hook-creation"
-    helm.sh/readiness-success: |
-      {.status.parents[*].conditions[?(@.type=="Accepted")].status} != "False" &&
-      {.status.parents[*].conditions[?(@.type=="ResolvedRefs")].status} != "False"    
-    helm.sh/readiness-failure: |
-      {.status.parents[*].conditions[?(@.type=="Accepted")].status} == "False" ||
-      {.status.parents[*].conditions[?(@.type=="ResolvedRefs")].status} == "False"
   labels:
-    app.kubernetes.io/name: '{{ .Values.SERVICE_NAME }}'
+    {{- $routeName := printf "%s-route" $gwName | trunc 63 -}}
+    {{- include "mesh.labels" (dict "root" . "name" $routeName "processedByOperator" true) | nindent 4 }}
 spec:
   parentRefs:
-  - name: ns-{{ .Values.ISTIO_EGRESS_GATEWAY_NAME }}
+    - name: {{ $gwName }}
   rules:
-  - matches:
-    - path:
-        type: PathPrefix
-        value: /
-    backendRefs:
-    - name: '{{ .Values.EGRESS_FB_SERVICE_NAME }}'
-      port: 8080
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      backendRefs:
+        - name: '{{ .Values.EGRESS_FB_SERVICE_NAME }}'
+          port: 8080
+---
+{{ include "mesh.hpa" (dict
+  "root" .
+  "name" (printf "%s-istio" $gwName)
+  "targetName" (printf "%s-istio" $gwName)
+  "defaultMinReplicas" 2
+  "defaultMaxReplicas" 10
+  "averageUtilization" (int (divf
+    (mulf (default 75 .Values.HPA_AVG_CPU_UTILIZATION_TARGET_PERCENT) (include "to_millicores" .Values.EGRESS_GW_CPU_LIMIT))
+    (include "to_millicores" .Values.CPU_REQUEST)
+  ))
+) }}
+
 {{- end }}
 {{- end }}
