@@ -115,5 +115,18 @@ spec:
       backendRefs:
         - name: '{{ .Values.EGRESS_FB_SERVICE_NAME }}'
           port: 8080
+---
+{{ include "mesh.hpa" (dict
+  "root" .
+  "name" (printf "%s-istio" $gwName)
+  "targetName" (printf "%s-istio" $gwName)
+  "defaultMinReplicas" 2
+  "defaultMaxReplicas" 10
+  "averageUtilization" (int (divf
+    (mulf (default 75 .Values.HPA_AVG_CPU_UTILIZATION_TARGET_PERCENT) (include "to_millicores" .Values.EGRESS_GW_CPU_LIMIT))
+    (include "to_millicores" .Values.CPU_REQUEST)
+  ))
+) }}
+
 {{- end }}
 {{- end }}
