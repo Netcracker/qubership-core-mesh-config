@@ -1,5 +1,5 @@
 {{- if eq .Values.SERVICE_MESH_TYPE "Istio" }}
-{{- $waypointName := .Values.WAYPOINT_NAME | default "waypoint" -}}
+{{ $waypointName := .Values.WAYPOINT_NAME | default "waypoint" }}
 apiVersion: gateway.networking.k8s.io/v1
 kind: Gateway
 metadata:
@@ -19,7 +19,7 @@ spec:
       port: 15008
       protocol: HBONE
 ---
-{{- include "mesh.gateway.deploymentCustomizationMap" (dict
+{{ include "mesh.gateway.deploymentCustomizationMap" (dict
   "name" $waypointName
   "values" (dict
     "root" .
