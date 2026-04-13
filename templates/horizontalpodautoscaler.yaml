@@ -1,0 +1,39 @@
+{{- if eq .Values.SERVICE_MESH_TYPE "Istio" }}
+
+---
+{{ include "mesh.hpa" (dict
+  "root" .
+  "name" (printf "%s-istio" .Values.ISTIO_PUBLIC_GATEWAY_NAME)
+  "targetName" (printf "%s-istio" .Values.ISTIO_PUBLIC_GATEWAY_NAME)
+  "defaultMinReplicas" 2
+  "defaultMaxReplicas" 10
+  "averageUtilization" (int (divf
+    (mulf (default 75 .Values.HPA_AVG_CPU_UTILIZATION_TARGET_PERCENT) (include "to_millicores" .Values.PUBLIC_GW_CPU_LIMIT))
+    (include "to_millicores" .Values.CPU_REQUEST)
+  ))
+) }}
+
+---
+{{ include "mesh.hpa" (dict
+  "root" .
+  "name" (printf "%s-istio" .Values.ISTIO_PRIVATE_GATEWAY_NAME)
+  "targetName" (printf "%s-istio" .Values.ISTIO_PRIVATE_GATEWAY_NAME)
+  "defaultMinReplicas" 2
+  "defaultMaxReplicas" 10
+  "averageUtilization" (int (divf
+    (mulf (default 75 .Values.HPA_AVG_CPU_UTILIZATION_TARGET_PERCENT) (include "to_millicores" .Values.PRIVATE_GW_CPU_LIMIT))
+    (include "to_millicores" .Values.CPU_REQUEST)
+  ))
+) }}
+
+---
+{{ include "mesh.hpa" (dict
+  "root" .
+  "name" .Values.WAYPOINT_NAME
+  "targetName" .Values.WAYPOINT_NAME
+  "defaultMinReplicas" 1
+  "defaultMaxReplicas" 5
+  "averageUtilization" (default 75 .Values.HPA_AVG_CPU_UTILIZATION_TARGET_PERCENT)
+) }}
+
+{{- end }}

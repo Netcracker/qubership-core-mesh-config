@@ -1,13 +1,15 @@
-{{- if eq .Values.deploy_feature_flags.core.serviceMeshType "ISTIO" }}
+{{- if eq .Values.SERVICE_MESH_TYPE "Istio" }}
 ---
 kind: Service
 apiVersion: v1
 metadata:
-    name: '{{ .Values.PUBLIC_SERVICE_NAME }}'
-    annotations:
-      helm.sh/hook: "post-install, post-upgrade"
-      helm.sh/hook-weight: "110"
-      helm.sh/hook-delete-policy: "before-hook-creation"
+  name: '{{ .Values.PUBLIC_SERVICE_NAME }}'
+  annotations:
+    helm.sh/hook: "post-install, post-upgrade"
+    helm.sh/hook-weight: "110"
+    helm.sh/hook-delete-policy: "before-hook-creation"
+  labels:
+    {{- include "mesh.labels.service" (dict "root" . "name" .Values.PUBLIC_SERVICE_NAME ) | nindent 4 }}
 spec:
   ports:
     - name: web
@@ -29,11 +31,13 @@ spec:
 kind: Service
 apiVersion: v1
 metadata:
-    name: '{{ .Values.PRIVATE_SERVICE_NAME }}'
-    annotations:
-      helm.sh/hook: "post-install, post-upgrade"
-      helm.sh/hook-weight: "110"
-      helm.sh/hook-delete-policy: "before-hook-creation"
+  name: '{{ .Values.PRIVATE_SERVICE_NAME }}'
+  annotations:
+    helm.sh/hook: "post-install, post-upgrade"
+    helm.sh/hook-weight: "110"
+    helm.sh/hook-delete-policy: "before-hook-creation"
+  labels:
+    {{- include "mesh.labels.service" (dict "root" . "name" .Values.PRIVATE_SERVICE_NAME ) | nindent 4 }}
 spec:
   ports:
     - name: web
