@@ -1,0 +1,408 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "http://example.com/example.json",
+  "type": "object",
+  "title": "Gateway Variables Schema",
+  "description": "JSON Schema for the list of gateway-related variables (private, public, egress, waypoint, HPA).",
+  "definitions": {
+    "integerOrString": {
+      "anyOf": [
+        { "type": "integer" },
+        { "type": "string" }
+      ]
+    },
+    "booleanOrString": {
+      "anyOf": [
+        { "type": "boolean" },
+        { "type": "string" }
+      ]
+    }
+  },
+  "properties": {
+    "ISTIO_PRIVATE_GATEWAY_NAME": {
+      "$id": "#/properties/ISTIO_PRIVATE_GATEWAY_NAME",
+      "type": "string",
+      "title": "The ISTIO_PRIVATE_GATEWAY_NAME schema",
+      "description": "Name of the private Istio gateway.",
+      "default": "private-gateway",
+      "internal": true
+    },
+    "ISTIO_PUBLIC_GATEWAY_NAME": {
+      "$id": "#/properties/ISTIO_PUBLIC_GATEWAY_NAME",
+      "type": "string",
+      "title": "The ISTIO_PUBLIC_GATEWAY_NAME schema",
+      "description": "Name of the public Istio gateway.",
+      "default": "public-gateway",
+      "internal": true
+    },
+    "PUBLIC_FB_SERVICE_NAME": {
+      "$id": "#/properties/PUBLIC_FB_SERVICE_NAME",
+      "type": "string",
+      "title": "The PUBLIC_FB_SERVICE_NAME schema",
+      "description": "Name of the public fallback service.",
+      "default": "public-fallback-service",
+      "internal": true
+    },
+    "PRIVATE_FB_SERVICE_NAME": {
+      "$id": "#/properties/PRIVATE_FB_SERVICE_NAME",
+      "type": "string",
+      "title": "The PRIVATE_FB_SERVICE_NAME schema",
+      "description": "Name of the private fallback service.",
+      "default": "private-fallback-service",
+      "internal": true
+    },
+    "PRIVATE_GW_ROUTE_NAME": {
+      "$id": "#/properties/PRIVATE_GW_ROUTE_NAME",
+      "type": "string",
+      "title": "The PRIVATE_GW_ROUTE_NAME schema",
+      "description": "Route name for fallback to private gateway.",
+      "default": "fallback-to-private-gateway",
+      "internal": true
+    },
+    "PUBLIC_GW_ROUTE_NAME": {
+      "$id": "#/properties/PUBLIC_GW_ROUTE_NAME",
+      "type": "string",
+      "title": "The PUBLIC_GW_ROUTE_NAME schema",
+      "description": "Route name for fallback to public gateway.",
+      "default": "fallback-to-public-gateway",
+      "internal": true
+    },
+    "ISTIO_EGRESS_GATEWAY_NAME": {
+      "$id": "#/properties/ISTIO_EGRESS_GATEWAY_NAME",
+      "type": "string",
+      "title": "The ISTIO_EGRESS_GATEWAY_NAME schema",
+      "description": "Name of the egress Istio gateway.",
+      "default": "egress-gateway",
+      "internal": true
+    },
+    "EGRESS_FB_SERVICE_NAME": {
+      "$id": "#/properties/EGRESS_FB_SERVICE_NAME",
+      "type": "string",
+      "title": "The EGRESS_FB_SERVICE_NAME schema",
+      "description": "Egress fallback service name.",
+      "default": "egress-fallback-service",
+      "internal": true
+    },
+    "EGRESS_GATEWAY_SERVICE_NAME": {
+      "$id": "#/properties/EGRESS_GATEWAY_SERVICE_NAME",
+      "type": "string",
+      "title": "The EGRESS_GATEWAY_SERVICE_NAME schema",
+      "description": "Kubernetes service name for the egress gateway.",
+      "default": "egress-gateway",
+      "internal": true
+    },
+    "EGRESS_GATEWAY_SERVICE": {
+      "$id": "#/properties/EGRESS_GATEWAY_SERVICE",
+      "type": "string",
+      "title": "The EGRESS_GATEWAY_SERVICE schema",
+      "description": "Egress gateway identifier.",
+      "default": "egress-gateway-gateway",
+      "internal": true
+    },
+    "WAYPOINT_NAME": {
+      "$id": "#/properties/WAYPOINT_NAME",
+      "type": "string",
+      "title": "The WAYPOINT_NAME schema",
+      "description": "Name of the waypoint (ambient mesh) gateway.",
+      "default": "waypoint",
+      "internal": true
+    },
+    "APPLICATION_NAME": {
+      "$id": "#/properties/APPLICATION_NAME",
+      "type": "string",
+      "title": "The APPLICATION_NAME schema",
+      "description": "Contract parameter – application name.",
+      "default": "Cloud-Core",
+      "internal": true
+    },
+    "SERVICE_NAME": {
+      "$id": "#/properties/SERVICE_NAME",
+      "type": "string",
+      "title": "The SERVICE_NAME schema",
+      "description": "Name of a service.",
+      "default": "qubership-core-mesh",
+      "internal": true
+    },
+    "SERVICE_MESH_TYPE": {
+      "$id": "#/properties/SERVICE_MESH_TYPE",
+      "type": "string",
+      "title": "The SERVICE_MESH_TYPE schema",
+      "description": "Type of service mesh. Allowed values: 'Istio' or 'Core to disable'.",
+      "enum": ["Istio", "Core to disable"],
+      "default": "Istio",
+      "internal": true
+    },
+    "WAYPOINT_MEMORY_LIMIT": {
+      "$id": "#/properties/WAYPOINT_MEMORY_LIMIT",
+      "type": "string",
+      "title": "The WAYPOINT_MEMORY_LIMIT schema",
+      "description": "Memory limit for waypoint gateway.",
+      "default": "125Mi",
+      "internal": true
+    },
+    "WAYPOINT_CPU_REQUEST": {
+      "$id": "#/properties/WAYPOINT_CPU_REQUEST",
+      "$ref": "#/definitions/integerOrString",
+      "title": "The WAYPOINT_CPU_REQUEST schema",
+      "description": "CPU request for waypoint container.",
+      "default": "250m",
+      "internal": true
+    },
+    "WAYPOINT_CPU_LIMIT": {
+      "$id": "#/properties/WAYPOINT_CPU_LIMIT",
+      "$ref": "#/definitions/integerOrString",
+      "title": "The WAYPOINT_CPU_LIMIT schema",
+      "description": "CPU limit for waypoint container.",
+      "default": "500m",
+      "internal": true
+    },
+    "PUBLIC_SERVICE_NAME": {
+      "$id": "#/properties/PUBLIC_SERVICE_NAME",
+      "type": "string",
+      "title": "The PUBLIC_SERVICE_NAME schema",
+      "description": "Public frontend gateway service name.",
+      "internal": true
+    },
+    "PRIVATE_SERVICE": {
+      "type": "string",
+      "description": "Private frontend gateway identifier.",
+      "default": "private-frontend-gateway"
+    },
+    "PRIVATE_SERVICE_NAME": {
+      "$id": "#/properties/PRIVATE_SERVICE_NAME",
+      "type": "string",
+      "title": "The PRIVATE_SERVICE_NAME schema",
+      "description": "Private frontend gateway service name.",
+      "internal": true
+    },
+    "SKIP_EGRESS_GATEWAY_CREATION": {
+      "$id": "#/properties/SKIP_EGRESS_GATEWAY_CREATION",
+      "$ref": "#/definitions/booleanOrString",
+      "default": false,
+      "description": "Is an egress-gateway needed to be created?",
+      "examples": [false],
+      "internal": true,
+      "title": "The SKIP_EGRESS_GATEWAY_CREATION schema"
+    },
+    "CLOUD_TOPOLOGY_KEY": {
+      "$id": "#/properties/CLOUD_TOPOLOGY_KEY",
+      "type": "string",
+      "title": "The CLOUD_TOPOLOGY_KEY schema",
+      "description": "Affinity key.",
+      "default": "kubernetes.io/hostname",
+      "examples": ["kubernetes.io/hostname"]
+    },
+    "PRIVATE_GW_MEMORY_LIMIT": {
+      "$id": "#/properties/PRIVATE_GW_MEMORY_LIMIT",
+      "type": "string",
+      "title": "The PRIVATE_GW_MEMORY_LIMIT schema",
+      "description": "Memory limit for private gateway.",
+      "default": "125Mi",
+      "internal": true,
+      "envSpecific": true
+    },
+    "PUBLIC_GW_MEMORY_LIMIT": {
+      "$id": "#/properties/PUBLIC_GW_MEMORY_LIMIT",
+      "type": "string",
+      "title": "The PUBLIC_GW_MEMORY_LIMIT schema",
+      "description": "Memory limit for public gateway.",
+      "default": "125Mi",
+      "internal": true,
+      "envSpecific": true
+    },
+    "EGRESS_GW_MEMORY_LIMIT": {
+      "$id": "#/properties/EGRESS_GW_MEMORY_LIMIT",
+      "type": "string",
+      "title": "The EGRESS_GW_MEMORY_LIMIT schema",
+      "description": "Memory limit for egress gateway.",
+      "default": "64Mi",
+      "internal": true,
+      "envSpecific": true
+    },
+    "PRIVATE_GW_CPU_LIMIT": {
+      "$id": "#/properties/PRIVATE_GW_CPU_LIMIT",
+      "$ref": "#/definitions/integerOrString",
+      "title": "The PRIVATE_GW_CPU_LIMIT schema",
+      "description": "CPU limit for private gateway.",
+      "default": "250m",
+      "internal": true,
+      "envSpecific": true
+    },
+    "PUBLIC_GW_CPU_LIMIT": {
+      "$id": "#/properties/PUBLIC_GW_CPU_LIMIT",
+      "$ref": "#/definitions/integerOrString",
+      "title": "The PUBLIC_GW_CPU_LIMIT schema",
+      "description": "CPU limit for public gateway.",
+      "default": "250m",
+      "internal": true,
+      "envSpecific": true
+    },
+    "EGRESS_GW_CPU_LIMIT": {
+      "$id": "#/properties/EGRESS_GW_CPU_LIMIT",
+      "$ref": "#/definitions/integerOrString",
+      "title": "The EGRESS_GW_CPU_LIMIT schema",
+      "description": "CPU limit for egress gateway.",
+      "default": "100m",
+      "internal": true,
+      "envSpecific": true
+    },
+    "CPU_REQUEST": {
+      "$id": "#/properties/CPU_REQUEST",
+      "$ref": "#/definitions/integerOrString",
+      "title": "The CPU_REQUEST schema",
+      "description": "CPU request for gateway containers.",
+      "default": "100m",
+      "internal": true,
+      "envSpecific": true
+    },
+    "REPLICAS": {
+      "$id": "#/properties/REPLICAS",
+      "$ref": "#/definitions/integerOrString",
+      "description": "Number of gateway replicas.",
+      "default": 1,
+      "envSpecific": true,
+      "internal": true,
+      "title": "The REPLICAS schema"
+    },
+    "HPA_ENABLED": {
+      "$id": "#/properties/HPA_ENABLED",
+      "$ref": "#/definitions/booleanOrString",
+      "description": "Defines whether horizontal autoscaling is enabled.",
+      "default": false,
+      "envSpecific": true,
+      "internal": true,
+      "title": "The HPA_ENABLED scheme"
+    },
+    "HPA_AVG_CPU_UTILIZATION_TARGET_PERCENT": {
+      "$id": "#/properties/HPA_AVG_CPU_UTILIZATION_TARGET_PERCENT",
+      "$ref": "#/definitions/integerOrString",
+      "description": "Target average CPU utilization for horizontal pod autoscaling.",
+      "default": 75,
+      "envSpecific": true,
+      "examples": [75],
+      "internal": true,
+      "title": "The HPA_AVG_CPU_UTILIZATION_TARGET_PERCENT scheme"
+    },
+    "HPA_SCALING_UP_STABILIZATION_WINDOW_SECONDS": {
+      "$id": "#/properties/HPA_SCALING_UP_STABILIZATION_WINDOW_SECONDS",
+      "$ref": "#/definitions/integerOrString",
+      "description": "Defines behavior.scaleUp.stabilizationWindowSeconds property in HPA resource.",
+      "default": 60,
+      "envSpecific": true,
+      "examples": [60],
+      "internal": true,
+      "title": "The HPA_SCALING_UP_STABILIZATION_WINDOW_SECONDS scheme"
+    },
+    "HPA_SCALING_UP_PODS_PERIOD_SECONDS": {
+      "$id": "#/properties/HPA_SCALING_UP_PODS_PERIOD_SECONDS",
+      "$ref": "#/definitions/integerOrString",
+      "description": "Defines behavior.scaleUp.policies[].periodSeconds property for Pods type.",
+      "default": 60,
+      "envSpecific": true,
+      "examples": [60],
+      "internal": true,
+      "title": "The HPA_SCALING_UP_PODS_PERIOD_SECONDS scheme"
+    },
+    "HPA_SCALING_UP_PODS_VALUE": {
+      "$id": "#/properties/HPA_SCALING_UP_PODS_VALUE",
+      "$ref": "#/definitions/integerOrString",
+      "description": "Defines behavior.scaleUp.policies[].value property for Pods type.",
+      "default": 1,
+      "envSpecific": true,
+      "examples": [1],
+      "internal": true,
+      "title": "The HPA_SCALING_UP_PODS_VALUE scheme"
+    },
+    "HPA_SCALING_DOWN_STABILIZATION_WINDOW_SECONDS": {
+      "$id": "#/properties/HPA_SCALING_DOWN_STABILIZATION_WINDOW_SECONDS",
+      "$ref": "#/definitions/integerOrString",
+      "description": "Defines behavior.scaleDown.stabilizationWindowSeconds property in HPA resource.",
+      "default": 300,
+      "envSpecific": true,
+      "examples": [300],
+      "internal": true,
+      "title": "The HPA_SCALING_DOWN_STABILIZATION_WINDOW_SECONDS scheme"
+    },
+    "HPA_SCALING_DOWN_PODS_PERIOD_SECONDS": {
+      "$id": "#/properties/HPA_SCALING_DOWN_PODS_PERIOD_SECONDS",
+      "$ref": "#/definitions/integerOrString",
+      "description": "Defines behavior.scaleDown.policies[].periodSeconds property for Pods type.",
+      "default": 60,
+      "envSpecific": true,
+      "examples": [60],
+      "internal": true,
+      "title": "The HPA_SCALING_DOWN_PODS_PERIOD_SECONDS scheme"
+    },
+    "HPA_SCALING_DOWN_PODS_VALUE": {
+      "$id": "#/properties/HPA_SCALING_DOWN_PODS_VALUE",
+      "$ref": "#/definitions/integerOrString",
+      "description": "Defines behavior.scaleDown.policies[].value property for Pods type.",
+      "default": 1,
+      "envSpecific": true,
+      "examples": [1],
+      "internal": true,
+      "title": "The HPA_SCALING_DOWN_PODS_VALUE scheme"
+    },
+    "HPA_MIN_REPLICAS": {
+      "$id": "#/properties/HPA_MIN_REPLICAS",
+      "$ref": "#/definitions/integerOrString",
+      "description": "Lower limit for the number of replicas to which the autoscaler can scale down.",
+      "default": 1,
+      "envSpecific": true,
+      "internal": true,
+      "title": "The HPA_MIN_REPLICAS scheme"
+    },
+    "HPA_MAX_REPLICAS": {
+      "$id": "#/properties/HPA_MAX_REPLICAS",
+      "$ref": "#/definitions/integerOrString",
+      "description": "Upper limit for the number of replicas to which the autoscaler can scale up.",
+      "default": 5,
+      "envSpecific": true,
+      "internal": true,
+      "title": "The HPA_MAX_REPLICAS scheme"
+    },
+    "HPA_SCALING_UP_SELECT_POLICY": {
+      "$id": "#/properties/HPA_SCALING_UP_SELECT_POLICY",
+      "description": "Defines behavior.scaleUp.selectPolicy property in HPA resource.",
+      "enum": ["Min", "Max", "Disabled"],
+      "default": "Max",
+      "envSpecific": true,
+      "examples": ["Max"],
+      "internal": true,
+      "title": "The HPA_SCALING_UP_SELECT_POLICY scheme",
+      "type": "string"
+    },
+    "HPA_SCALING_DOWN_SELECT_POLICY": {
+      "$id": "#/properties/HPA_SCALING_DOWN_SELECT_POLICY",
+      "description": "Defines behavior.scaleDown.selectPolicy property in HPA resource.",
+      "enum": ["Min", "Max", "Disabled"],
+      "default": "Max",
+      "envSpecific": true,
+      "examples": ["Max"],
+      "internal": true,
+      "title": "The HPA_SCALING_DOWN_SELECT_POLICY scheme",
+      "type": "string"
+    },
+    "HPA_SCALING_UP_PERCENT_PERIOD_SECONDS": {
+      "$id": "#/properties/HPA_SCALING_UP_PERCENT_PERIOD_SECONDS",
+      "$ref": "#/definitions/integerOrString",
+      "description": "Defines behavior.scaleUp.policies[].periodSeconds property for Percent type.",
+      "default": -1,
+      "envSpecific": true,
+      "examples": [60],
+      "internal": true,
+      "title": "The HPA_SCALING_UP_PERCENT_PERIOD_SECONDS scheme"
+    },
+    "HPA_SCALING_DOWN_PERCENT_PERIOD_SECONDS": {
+      "$id": "#/properties/HPA_SCALING_DOWN_PERCENT_PERIOD_SECONDS",
+      "$ref": "#/definitions/integerOrString",
+      "description": "Defines behavior.scaleDown.policies[].periodSeconds property for Percent type.",
+      "default": -1,
+      "envSpecific": true,
+      "examples": [60],
+      "internal": true,
+      "title": "The HPA_SCALING_DOWN_PERCENT_PERIOD_SECONDS scheme"
+    }
+  },
+  "additionalProperties": true
+}
