@@ -115,6 +115,8 @@ metadata:
   name: {{ printf "%s-pod-options" $name }}
   labels:
     {{- include "mesh.labels" (dict "root" $values.root "name" (printf "%s-pod-options" $name | trunc 63)) | nindent 4 }}
+  annotations:
+    helm.sh/hook-weight: "-100"
 data:
   deployment: |
     spec:
