@@ -19,9 +19,6 @@ spec:
       targetPort: 8080
   selector:
     name: '{{ .Values.EGRESS_GATEWAY_SERVICE }}'
-  clusterIP: None
-  clusterIPs:
-    - None
   type: ClusterIP
   sessionAffinity: None
   ipFamilies:
@@ -48,9 +45,6 @@ spec:
       targetPort: 8080
   selector:
     gateway.networking.k8s.io/gateway-name: {{ $gwName | quote }}
-  clusterIP: None
-  clusterIPs:
-    - None
   type: ClusterIP
   sessionAffinity: None
   ipFamilies:
