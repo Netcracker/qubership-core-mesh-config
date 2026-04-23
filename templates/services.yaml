@@ -18,9 +18,6 @@ spec:
       targetPort: 8080
   selector:
     name: '{{ .Values.PUBLIC_SERVICE }}'
-  clusterIP: None
-  clusterIPs:
-    - None
   type: ClusterIP
   sessionAffinity: None
   ipFamilies:
@@ -46,9 +43,6 @@ spec:
       targetPort: 8080
   selector:
     name: '{{ .Values.PRIVATE_SERVICE }}'
-  clusterIP: None
-  clusterIPs:
-    - None
   type: ClusterIP
   sessionAffinity: None
   ipFamilies:
