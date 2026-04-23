@@ -117,6 +117,8 @@ metadata:
     {{- include "mesh.labels" (dict "root" $values.root "name" (printf "%s-pod-options" $name | trunc 63)) | nindent 4 }}
   annotations:
     helm.sh/hook-weight: "-100"
+    helm.sh/hook: "pre-install, pre-upgrade"
+    helm.sh/hook-delete-policy: "before-hook-creation"
 data:
   deployment: |
     spec:
