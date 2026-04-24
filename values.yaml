@@ -1,12 +1,20 @@
 ---
 ISTIO_PRIVATE_GATEWAY_NAME: private-gateway
 ISTIO_PUBLIC_GATEWAY_NAME: public-gateway
+
+# fallback services names
 PUBLIC_FB_SERVICE_NAME: public-fallback-service
 PRIVATE_FB_SERVICE_NAME: private-fallback-service
 INTERNAL_FB_SERVICE_NAME: internal-fallback-service
+
+# fallback services selector values
 PUBLIC_SERVICE: "public-frontend-gateway"
 PRIVATE_SERVICE: "private-frontend-gateway"
 INTERNAL_SERVICE: "internal-gateway"
+
+# parentRef name for internal fallback route
+INTERNAL_SERVICE_NAME: "internal-gateway-service"
+
 PRIVATE_GW_ROUTE_NAME: fallback-to-private-gateway
 PUBLIC_GW_ROUTE_NAME: fallback-to-public-gateway
 INTERNAL_GW_ROUTE_NAME: fallback-to-internal-gateway

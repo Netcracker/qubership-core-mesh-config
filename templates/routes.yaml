@@ -43,21 +43,18 @@ spec:
         - name: '{{ .Values.PUBLIC_FB_SERVICE_NAME }}'
           port: 8080
 ---
+# internal fallback route should be created not earlier than it's parent service
 apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
 metadata:
   name: '{{ .Values.INTERNAL_GW_ROUTE_NAME }}'
-  annotations:
-    helm.sh/hook: "pre-install, pre-upgrade"
-    helm.sh/hook-weight: "-60"
-    helm.sh/hook-delete-policy: "before-hook-creation"
   labels:
     {{- include "mesh.labels" (dict "root" . "name" .Values.PUBLIC_GW_ROUTE_NAME "processedByOperator" true) | nindent 4 }}
 spec:
   parentRefs:
     - group: ''
       kind: Service
-      name: '{{ .Values.INTERNAL_SERVICE }}'
+      name: '{{ .Values.INTERNAL_SERVICE_NAME }}'
   rules:
     - matches:
         - path:
