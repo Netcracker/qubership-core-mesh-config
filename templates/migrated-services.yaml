@@ -55,4 +55,29 @@ spec:
     - IPv4
   ipFamilyPolicy: SingleStack
   internalTrafficPolicy: Cluster
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: '{{ .Values.INTERNAL_SERVICE_NAME }}'
+  annotations:
+    helm.sh/hook: "post-install, post-upgrade"
+    helm.sh/hook-weight: "110"
+    helm.sh/hook-delete-policy: "before-hook-creation"
+  labels:
+    {{- include "mesh.labels.service" (dict "root" . "name" .Values.INTERNAL_SERVICE_NAME ) | nindent 4 }}
+spec:
+  ports:
+    - name: web
+      protocol: TCP
+      port: 8080
+      targetPort: 8080
+  selector:
+      name: '{{ .Values.INTERNAL_SERVICE }}'
+  type: ClusterIP
+  sessionAffinity: None
+  ipFamilies:
+    - IPv4
+  ipFamilyPolicy: SingleStack
+  internalTrafficPolicy: Cluster
 {{- end }}
