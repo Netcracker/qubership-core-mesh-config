@@ -61,6 +61,9 @@ spec:
             type: PathPrefix
             value: /
       backendRefs:
-        - name: '{{ .Values.INTERNAL_FB_SERVICE_NAME }}'
-          port: 8080          
+        - group: ''
+          kind: Service
+          name: '{{ .Values.INTERNAL_FB_SERVICE_NAME }}'
+          port: 8080
+          weight: 1       
 {{- end }}
