@@ -10,6 +10,7 @@ metadata:
     helm.sh/hook-delete-policy: "before-hook-creation"
   labels:
     {{- include "mesh.labels.service" (dict "root" . "name" .Values.PUBLIC_FB_SERVICE_NAME) | nindent 4  }}
+    istio.io/use-waypoint: "none"
 spec:
   ports:
     - name: web
@@ -35,6 +36,7 @@ metadata:
     helm.sh/hook-delete-policy: "before-hook-creation"
   labels:
     {{- include "mesh.labels.service" (dict "root" . "name" .Values.PRIVATE_FB_SERVICE_NAME ) | nindent 4  }}
+    istio.io/use-waypoint: "none"
 spec:
   ports:
     - name: web
@@ -60,6 +62,7 @@ metadata:
     helm.sh/hook-delete-policy: "before-hook-creation"
   labels:
     {{- include "mesh.labels.service" (dict "root" . "name" .Values.PRIVATE_FB_SERVICE_NAME ) | nindent 4  }}
+    istio.io/use-waypoint: "none"
 spec:
   ports:
     - name: web

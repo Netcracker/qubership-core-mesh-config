@@ -10,6 +10,7 @@ metadata:
     helm.sh/hook-weight: "-100"
     helm.sh/hook-delete-policy: "before-hook-creation"
   labels:
+    deployer.cleanup/allow: "true"
     {{- include "mesh.labels" (dict "root" . "name" $publicGwName "processedByOperator" true) | nindent 4 }}
 spec:
   gatewayClassName: istio
@@ -49,6 +50,7 @@ metadata:
     helm.sh/hook-weight: "-100"
     helm.sh/hook-delete-policy: "before-hook-creation"
   labels:
+    deployer.cleanup/allow: "true"
     {{- include "mesh.labels" (dict "root" . "name" $privateGwName "processedByOperator" true) | nindent 4 }}
 spec:
   gatewayClassName: istio

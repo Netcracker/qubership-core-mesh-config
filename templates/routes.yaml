@@ -8,6 +8,7 @@ metadata:
     helm.sh/hook-weight: "-60"
     helm.sh/hook-delete-policy: "before-hook-creation"
   labels:
+    deployer.cleanup/allow: "true"
     {{- include "mesh.labels" (dict "root" . "name" .Values.PRIVATE_GW_ROUTE_NAME "processedByOperator" true) | nindent 4 }}
 spec:
   parentRefs:
@@ -30,6 +31,7 @@ metadata:
     helm.sh/hook-weight: "-60"
     helm.sh/hook-delete-policy: "before-hook-creation"
   labels:
+    deployer.cleanup/allow: "true"
     {{- include "mesh.labels" (dict "root" . "name" .Values.PUBLIC_GW_ROUTE_NAME "processedByOperator" true) | nindent 4 }}
 spec:
   parentRefs:
@@ -49,6 +51,7 @@ kind: HTTPRoute
 metadata:
   name: '{{ .Values.INTERNAL_GW_ROUTE_NAME }}'
   labels:
+    deployer.cleanup/allow: "true"
     {{- include "mesh.labels" (dict "root" . "name" .Values.PUBLIC_GW_ROUTE_NAME "processedByOperator" true) | nindent 4 }}
 spec:
   parentRefs:

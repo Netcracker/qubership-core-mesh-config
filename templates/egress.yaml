@@ -61,6 +61,7 @@ metadata:
     helm.sh/hook-weight: "-100"
     helm.sh/hook-delete-policy: "before-hook-creation"
   labels:
+    deployer.cleanup/allow: "true"
     {{- include "mesh.labels" (dict "root" . "name" .Values.EGRESS_GATEWAY_SERVICE_NAME  "processedByOperator" true) | nindent 4 }}
 spec:
   gatewayClassName: istio
@@ -96,6 +97,7 @@ metadata:
     helm.sh/hook-weight: "-60"
     helm.sh/hook-delete-policy: "before-hook-creation"
   labels:
+    deployer.cleanup/allow: "true"
     {{- $routeName := printf "%s-route" $gwName | trunc 63 -}}
     {{- include "mesh.labels" (dict "root" . "name" $routeName "processedByOperator" true) | nindent 4 }}
 spec:
