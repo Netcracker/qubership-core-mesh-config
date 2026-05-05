@@ -1,0 +1,50 @@
+{{- if and .Values.monitoring.enabled (eq .Values.SERVICE_MESH_TYPE "Istio") }}
+---
+{{ $publicGwName := .Values.ISTIO_PUBLIC_GATEWAY_NAME }}
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  name: {{ printf "%s-monitor" $publicGwName }}
+  labels:
+    {{ include "mesh.labels" (dict "root" . "name" (printf "%s-monitor" $publicGwName)) | nindent 4 }}
+spec:
+  selector:
+    matchLabels:
+      gateway.networking.k8s.io/gateway-name: {{ $publicGwName }}
+  podMetricsEndpoints:
+    - port: metrics
+      path: /stats/prometheus
+      interval: {{ .Values.monitoring.scrapeInterval }}
+---
+{{ $privateGwName := .Values.ISTIO_PRIVATE_GATEWAY_NAME }}
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  name: {{ printf "%s-monitor" $privateGwName }}
+  labels:
+    {{ include "mesh.labels" (dict "root" . "name" (printf "%s-monitor" $privateGwName)) | nindent 4 }}
+spec:
+  selector:
+    matchLabels:
+      gateway.networking.k8s.io/gateway-name: {{ $privateGwName }}
+  podMetricsEndpoints:
+    - port: metrics
+      path: /stats/prometheus
+      interval: {{ .Values.monitoring.scrapeInterval }}
+---
+{{ $waypointName := .Values.WAYPOINT_NAME | default "waypoint" }}
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  name: {{ printf "%s-monitor" $waypointName }}
+  labels:
+    {{ include "mesh.labels" (dict "root" . "name" (printf "%s-monitor" $waypointName)) | nindent 4 }}
+spec:
+  selector:
+    matchLabels:
+      gateway.networking.k8s.io/gateway-name: {{ $waypointName }}
+  podMetricsEndpoints:
+    - port: metrics
+      path: /stats/prometheus
+      interval: {{ .Values.monitoring.scrapeInterval }}
+{{- end }}
