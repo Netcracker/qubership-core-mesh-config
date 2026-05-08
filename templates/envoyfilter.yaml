@@ -34,7 +34,7 @@ spec:
             preserve_external_request_id: true
             generate_request_id: true
             stream_idle_timeout: 120s
-            request_timeout: 120s
+            # request_timeout: 120s
     - applyTo: HTTP_ROUTE
       patch:
         operation: MERGE
