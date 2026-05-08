@@ -14,7 +14,7 @@ spec:
     - name: {{ .Values.ISTIO_EGRESS_GATEWAY_NAME }}
       kind: Gateway
       group: gateway.networking.k8s.io
-    - name: {{ .Values.ISTIO_WAYPOINT_GATEWAY_NAME }}
+    - name: {{ .Values.WAYPOINT_NAME }}
       kind: Gateway
       group: gateway.networking.k8s.io
   configPatches:
