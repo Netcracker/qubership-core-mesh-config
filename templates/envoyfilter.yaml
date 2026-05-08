@@ -3,21 +3,20 @@ apiVersion: networking.istio.io/v1alpha3
 kind: EnvoyFilter
 metadata:
   name: hcm-global-settings
-  namespace: core-1-core
 spec:
   targetRefs:
-    - group: gateway.networking.k8s.io
+    - name: {{ .Values.ISTIO_PUBLIC_GATEWAY_NAME }}
       kind: Gateway
-      name: public-gateway
-    - group: gateway.networking.k8s.io
+      group: gateway.networking.k8s.io
+    - name: {{ .Values.ISTIO_PRIVATE_GATEWAY_NAME }}
       kind: Gateway
-      name: private-gateway
-    - group: gateway.networking.k8s.io
+      group: gateway.networking.k8s.io
+    - name: {{ .Values.ISTIO_EGRESS_GATEWAY_NAME }}
       kind: Gateway
-      name: egress-gateway
-    - group: gateway.networking.k8s.io
+      group: gateway.networking.k8s.io
+    - name: {{ .Values.ISTIO_WAYPOINT_GATEWAY_NAME }}
       kind: Gateway
-      name: waypoint
+      group: gateway.networking.k8s.io
   configPatches:
     - applyTo: NETWORK_FILTER
       match:
