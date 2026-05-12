@@ -58,6 +58,16 @@ metadata:
     helm.sh/hook: "pre-install, pre-upgrade"
     helm.sh/hook-weight: "-100"
     helm.sh/hook-delete-policy: "before-hook-creation"
+    proxy.istio.io/config: |
+      proxyHeaders:
+        server:
+          disabled: true
+        envoyDebugHeaders:
+          disabled: true
+        metadataExchangeHeaders:
+          mode: IN_MESH
+        attemptCount:
+          disabled: true
   labels:
     {{- include "mesh.labels" (dict "root" . "name" $privateGwName "processedByOperator" true) | nindent 4 }}
 spec:
