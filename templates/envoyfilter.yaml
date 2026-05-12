@@ -1,4 +1,4 @@
-{{- if eq .Values.SERVICE_MESH_TYPE "Istiod" }}
+{{- if eq .Values.SERVICE_MESH_TYPE "Istio" }}
 apiVersion: networking.istio.io/v1alpha3
 kind: EnvoyFilter
 metadata:
@@ -42,25 +42,4 @@ spec:
             propagate: false
           route:
             timeout: 120s
-    - applyTo: VIRTUAL_HOST
-      patch:
-        operation: MERGE
-        value:
-          response_headers_to_remove:
-            - x-envoy-upstream-service-time
-            - x-envoy-decorator-operation
-            - x-envoy-peer-metadata
-            - x-envoy-peer-metadata-id
-            - x-envoy-attempt-count
-            - x-envoy-expected-rq-timeout-ms
-            - x-envoy-external-address
-            - x-envoy-internal
-            - x-envoy-original-dst-host
-            - x-envoy-overloaded
-            - x-envoy-retry-on
-            - x-envoy-upstream-healthchecked-cluster
-            - x-envoy-upstream-rq-timeout-ms
-            - x-envoy-upstream-service-cluster
-            - x-envoy-upstream-service-zone
-            - server
 {{- end }}
