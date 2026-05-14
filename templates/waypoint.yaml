@@ -7,6 +7,17 @@ metadata:
   labels:
     {{- include "mesh.labels" (dict "root" . "name" $waypointName "processedByOperator" true) | nindent 4 }}
     istio.io/waypoint-for: service
+  annotations:
+    proxy.istio.io/config: |
+      proxyHeaders:
+        server:
+          disabled: true
+        envoyDebugHeaders:
+          disabled: true
+        metadataExchangeHeaders:
+          mode: IN_MESH
+        attemptCount:
+          disabled: true
 spec:
   gatewayClassName: istio-waypoint
   infrastructure:
