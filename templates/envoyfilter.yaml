@@ -1,0 +1,45 @@
+{{- if eq .Values.SERVICE_MESH_TYPE "Istio" }}
+apiVersion: networking.istio.io/v1alpha3
+kind: EnvoyFilter
+metadata:
+  name: hcm-global-settings
+spec:
+  targetRefs:
+    - name: {{ .Values.ISTIO_PUBLIC_GATEWAY_NAME }}
+      kind: Gateway
+      group: gateway.networking.k8s.io
+    - name: {{ .Values.ISTIO_PRIVATE_GATEWAY_NAME }}
+      kind: Gateway
+      group: gateway.networking.k8s.io
+    - name: {{ .Values.ISTIO_EGRESS_GATEWAY_NAME }}
+      kind: Gateway
+      group: gateway.networking.k8s.io
+    - name: {{ .Values.WAYPOINT_NAME }}
+      kind: Gateway
+      group: gateway.networking.k8s.io
+  configPatches:
+    - applyTo: NETWORK_FILTER
+      match:
+        listener:
+          filterChain:
+            filter:
+              name: envoy.filters.network.http_connection_manager
+      patch:
+        operation: MERGE
+        value:
+          typed_config:
+            '@type': type.googleapis.com/envoy.extensions.filters.network.http_connection_manager.v3.HttpConnectionManager
+            server_header_transformation: PASS_THROUGH
+            preserve_external_request_id: true
+            generate_request_id: true
+            stream_idle_timeout: 120s
+            request_timeout: 120s
+    - applyTo: HTTP_ROUTE
+      patch:
+        operation: MERGE
+        value:
+          decorator:
+            propagate: false
+          route:
+            timeout: 120s
+{{- end }}
