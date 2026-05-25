@@ -1,0 +1,68 @@
+{{- if and .Values.MONITORING_ENABLED (eq .Values.SERVICE_MESH_TYPE "Istio") }}
+---
+{{ $publicGwName := .Values.ISTIO_PUBLIC_GATEWAY_NAME }}
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ printf "%s-monitor" $publicGwName }}
+  labels:
+    {{ include "mesh.labels" (dict "root" . "name" (printf "%s-monitor" $publicGwName)) | nindent 4 }}
+spec:
+  selector:
+    matchLabels:
+      gateway.networking.k8s.io/gateway-name: {{ $publicGwName }}
+  endpoints:
+    - targetPort: 15020
+      path: /stats/prometheus
+      interval: {{ .Values.monitoring.scrapeInterval }}
+---
+{{ $privateGwName := .Values.ISTIO_PRIVATE_GATEWAY_NAME }}
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ printf "%s-monitor" $privateGwName }}
+  labels:
+    {{ include "mesh.labels" (dict "root" . "name" (printf "%s-monitor" $privateGwName)) | nindent 4 }}
+spec:
+  selector:
+    matchLabels:
+      gateway.networking.k8s.io/gateway-name: {{ $privateGwName }}
+  endpoints:
+    - targetPort: 15020
+      path: /stats/prometheus
+      interval: {{ .Values.monitoring.scrapeInterval }}
+---
+{{ $waypointName := .Values.WAYPOINT_NAME | default "waypoint" }}
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ printf "%s-monitor" $waypointName }}
+  labels:
+    {{ include "mesh.labels" (dict "root" . "name" (printf "%s-monitor" $waypointName)) | nindent 4 }}
+spec:
+  selector:
+    matchLabels:
+      gateway.networking.k8s.io/gateway-name: {{ $waypointName }}
+  endpoints:
+    - targetPort: 15020
+      path: /stats/prometheus
+      interval: {{ .Values.monitoring.scrapeInterval }}
+---
+{{- if not .Values.SKIP_EGRESS_GATEWAY_CREATION }}
+{{ $egressGwName := .Values.ISTIO_EGRESS_GATEWAY_NAME }}
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ printf "%s-monitor" $egressGwName }}
+  labels:
+    {{ include "mesh.labels.service" (dict "root" . "name" .Values.EGRESS_GATEWAY_SERVICE_NAME ) | nindent 4 }}
+spec:
+  selector:
+    matchLabels:
+      gateway.networking.k8s.io/gateway-name: {{ $egressGwName }}
+  endpoints:
+    - targetPort: 15020
+      path: /stats/prometheus
+      interval: {{ .Values.monitoring.scrapeInterval }}
+{{- end }}
+{{- end }}

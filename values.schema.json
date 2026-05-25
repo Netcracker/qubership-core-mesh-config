@@ -402,6 +402,27 @@
       "examples": [60],
       "internal": true,
       "title": "The HPA_SCALING_DOWN_PERCENT_PERIOD_SECONDS scheme"
+    },
+    "MONITORING_ENABLED": {
+      "$id": "#/properties/MONITORING_ENABLED",
+      "$ref": "#/definitions/booleanOrString",
+      "description": "Is monitoring enabled",
+      "examples": [
+        false
+      ],
+      "title": "The MONITORING_ENABLED schema"
+    },
+    "monitoring": {
+      "type": "object",
+      "description": "Prometheus monitoring configuration.",
+      "properties": {
+        "scrapeInterval": {
+          "type": "string",
+          "default": "15s",
+          "pattern": "^[0-9]+(ms|s|m|h)$",
+          "description": "Prometheus scrape interval (e.g. 5s, 15s, 1m)"
+        }
+      }
     }
   },
   "additionalProperties": true
