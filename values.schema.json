@@ -404,9 +404,13 @@
       "title": "The HPA_SCALING_DOWN_PERCENT_PERIOD_SECONDS scheme"
     },
     "MONITORING_ENABLED": {
-      "type": "boolean",
-      "default": false,
-      "description": "Enable Prometheus monitoring resources (ServiceMonitors)"
+      "$id": "#/properties/MONITORING_ENABLED",
+      "$ref": "#/definitions/booleanOrString",
+      "description": "Is monitoring enabled",
+      "examples": [
+        false
+      ],
+      "title": "The MONITORING_ENABLED schema"
     },
     "monitoring": {
       "type": "object",
