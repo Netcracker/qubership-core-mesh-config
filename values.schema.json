@@ -408,7 +408,7 @@
       "default": false,
       "description": "Enable Prometheus monitoring resources (ServiceMonitors)"
     },
-    "MONITORING_SCRAPE_INTERVAL": {
+    "monitoringScrapeInterval": {
       "type": "string",
       "default": "15s",
       "pattern": "^[0-9]+(ms|s|m|h)$",
