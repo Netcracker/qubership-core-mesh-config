@@ -408,11 +408,17 @@
       "default": false,
       "description": "Enable Prometheus monitoring resources (ServiceMonitors)"
     },
-    "monitoringScrapeInterval": {
-      "type": "string",
-      "default": "15s",
-      "pattern": "^[0-9]+(ms|s|m|h)$",
-      "description": "Prometheus scrape interval (e.g. 5s, 15s, 1m)"
+    "monitoring": {
+      "type": "object",
+      "description": "Prometheus monitoring configuration.",
+      "properties": {
+        "scrapeInterval": {
+          "type": "string",
+          "default": "15s",
+          "pattern": "^[0-9]+(ms|s|m|h)$",
+          "description": "Prometheus scrape interval (e.g. 5s, 15s, 1m)"
+        }
+      }
     }
   },
   "additionalProperties": true

@@ -14,7 +14,7 @@ spec:
   endpoints:
     - targetPort: 15020
       path: /stats/prometheus
-      interval: {{ .Values.monitoringScrapeInterval }}
+      interval: {{ .Values.monitoring.scrapeInterval }}
 ---
 {{ $privateGwName := .Values.ISTIO_PRIVATE_GATEWAY_NAME }}
 apiVersion: monitoring.coreos.com/v1
@@ -30,7 +30,7 @@ spec:
   endpoints:
     - targetPort: 15020
       path: /stats/prometheus
-      interval: {{ .Values.monitoringScrapeInterval }}
+      interval: {{ .Values.monitoring.scrapeInterval }}
 ---
 {{ $waypointName := .Values.WAYPOINT_NAME | default "waypoint" }}
 apiVersion: monitoring.coreos.com/v1
@@ -46,7 +46,7 @@ spec:
   endpoints:
     - targetPort: 15020
       path: /stats/prometheus
-      interval: {{ .Values.monitoringScrapeInterval }}
+      interval: {{ .Values.monitoring.scrapeInterval }}
 ---
 {{- if not .Values.SKIP_EGRESS_GATEWAY_CREATION }}
 {{ $egressGwName := .Values.ISTIO_EGRESS_GATEWAY_NAME }}
@@ -63,6 +63,6 @@ spec:
   endpoints:
     - targetPort: 15020
       path: /stats/prometheus
-      interval: {{ .Values.monitoringScrapeInterval }}
+      interval: {{ .Values.monitoring.scrapeInterval }}
 {{- end }}
 {{- end }}

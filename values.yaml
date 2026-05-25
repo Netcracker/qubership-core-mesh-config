@@ -26,4 +26,5 @@ SERVICE_MESH_TYPE : "Istio"   # or "Core to disable"
 CLOUD_TOPOLOGY_KEY: kubernetes.io/hostname
 
 MONITORING_ENABLED: true
-monitoringScrapeInterval: 15s
+monitoring:
+  scrapeInterval: 15s
