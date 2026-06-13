@@ -8,7 +8,7 @@ metadata:
     helm.sh/hook: "post-install, post-upgrade"
     helm.sh/hook-weight: "110"
     helm.sh/hook-delete-policy: "before-hook-creation"
-    facade-operator.core.qubership.org/ignore: "true"
+    facade-operator.core.netcracker.com/ignore: "true"
   labels:
     {{- include "mesh.labels.service" (dict "root" . "name" .Values.EGRESS_GATEWAY_SERVICE_NAME ) | nindent 4 }}
 spec:
