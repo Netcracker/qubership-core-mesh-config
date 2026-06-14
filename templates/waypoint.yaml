@@ -4,7 +4,12 @@ apiVersion: gateway.networking.k8s.io/v1
 kind: Gateway
 metadata:
   name: {{ $waypointName }}
+  annotations:
+    helm.sh/hook: "pre-install, pre-upgrade"
+    helm.sh/hook-weight: "-100"
+    helm.sh/hook-delete-policy: "before-hook-creation"
   labels:
+    deployer.cleanup/allow: "true"
     {{- include "mesh.labels" (dict "root" . "name" $waypointName "processedByOperator" true) | nindent 4 }}
     istio.io/waypoint-for: service
   annotations:
@@ -42,4 +47,28 @@ spec:
     "topologyKey" .Values.CLOUD_TOPOLOGY_KEY
   )
 ) }}
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: EnvoyFilter
+metadata:
+  name: strip-xfp-waypoint
+  annotations:
+    helm.sh/hook: "pre-install, pre-upgrade"
+    helm.sh/hook-weight: "-60"
+    helm.sh/hook-delete-policy: "before-hook-creation"
+  labels:
+    deployer.cleanup/allow: "true"
+    {{- include "mesh.labels" (dict "root" . "name" $waypointName "processedByOperator" true) | nindent 4 }}
+spec:
+  targetRefs:
+  - group: gateway.networking.k8s.io
+    kind: Gateway
+    name: {{ $waypointName }}
+  configPatches:
+  - applyTo: VIRTUAL_HOST
+    patch:
+      operation: MERGE
+      value:
+        request_headers_to_remove:
+        - x-forwarded-proto
 {{- end }}

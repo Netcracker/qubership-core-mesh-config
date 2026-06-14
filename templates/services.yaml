@@ -10,6 +10,7 @@ metadata:
     helm.sh/hook-delete-policy: "before-hook-creation"
   labels:
     {{- include "mesh.labels.service" (dict "root" . "name" .Values.PUBLIC_FB_SERVICE_NAME) | nindent 4  }}
+    istio.io/use-waypoint: "none"
 spec:
   ports:
     - name: web
@@ -18,9 +19,6 @@ spec:
       targetPort: 8080
   selector:
     name: '{{ .Values.PUBLIC_SERVICE }}'
-  clusterIP: None
-  clusterIPs:
-    - None
   type: ClusterIP
   sessionAffinity: None
   ipFamilies:
@@ -38,6 +36,7 @@ metadata:
     helm.sh/hook-delete-policy: "before-hook-creation"
   labels:
     {{- include "mesh.labels.service" (dict "root" . "name" .Values.PRIVATE_FB_SERVICE_NAME ) | nindent 4  }}
+    istio.io/use-waypoint: "none"
 spec:
   ports:
     - name: web
@@ -46,9 +45,32 @@ spec:
       targetPort: 8080
   selector:
     name: '{{ .Values.PRIVATE_SERVICE }}'
-  clusterIP: None
-  clusterIPs:
-    - None
+  type: ClusterIP
+  sessionAffinity: None
+  ipFamilies:
+    - IPv4
+  ipFamilyPolicy: SingleStack
+  internalTrafficPolicy: Cluster
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: '{{ .Values.INTERNAL_FB_SERVICE_NAME }}'
+  annotations:
+    helm.sh/hook: "pre-install, pre-upgrade"
+    helm.sh/hook-weight: "-80"
+    helm.sh/hook-delete-policy: "before-hook-creation"
+  labels:
+    {{- include "mesh.labels.service" (dict "root" . "name" .Values.PRIVATE_FB_SERVICE_NAME ) | nindent 4  }}
+    istio.io/use-waypoint: "none"
+spec:
+  ports:
+    - name: web
+      protocol: TCP
+      port: 8080
+      targetPort: 8080
+  selector:
+    name: '{{ .Values.INTERNAL_SERVICE }}'
   type: ClusterIP
   sessionAffinity: None
   ipFamilies:

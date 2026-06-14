@@ -51,6 +51,46 @@
       "default": "private-fallback-service",
       "internal": true
     },
+    "INTERNAL_FB_SERVICE_NAME": {
+      "$id": "#/properties/INTERNAL_FB_SERVICE_NAME",
+      "type": "string",
+      "title": "The INTERNAL_FB_SERVICE_NAME schema",
+      "description": "Name of the internal fallback service.",
+      "default": "internal-fallback-service",
+      "internal": true
+    },
+    "INTERNAL_SERVICE_NAME": {
+      "$id": "#/properties/INTERNAL_SERVICE_NAME",
+      "type": "string",
+      "title": "The INTERNAL_SERVICE_NAME schema",
+      "description": "Kubernetes service name for the internal gateway.",
+      "default": "internal-gateway-service",
+      "internal": true
+    },
+    "PUBLIC_SERVICE": {
+      "$id": "#/properties/PUBLIC_SERVICE",
+      "type": "string",
+      "title": "The PUBLIC_SERVICE schema",
+      "description": "Public frontend gateway identifier.",
+      "default": "public-frontend-gateway",
+      "internal": true
+    },
+    "PRIVATE_SERVICE": {
+      "$id": "#/properties/PRIVATE_SERVICE",
+      "type": "string",
+      "title": "The PRIVATE_SERVICE schema",
+      "description": "Private frontend gateway identifier.",
+      "default": "private-frontend-gateway",
+      "internal": true
+    },
+    "INTERNAL_SERVICE": {
+      "$id": "#/properties/INTERNAL_SERVICE",
+      "type": "string",
+      "title": "The INTERNAL_SERVICE schema",
+      "description": "Internal gateway identifier.",
+      "default": "internal-gateway",
+      "internal": true
+    },
     "PRIVATE_GW_ROUTE_NAME": {
       "$id": "#/properties/PRIVATE_GW_ROUTE_NAME",
       "type": "string",
@@ -65,6 +105,14 @@
       "title": "The PUBLIC_GW_ROUTE_NAME schema",
       "description": "Route name for fallback to public gateway.",
       "default": "fallback-to-public-gateway",
+      "internal": true
+    },
+    "INTERNAL_GW_ROUTE_NAME": {
+      "$id": "#/properties/INTERNAL_GW_ROUTE_NAME",
+      "type": "string",
+      "title": "The INTERNAL_GW_ROUTE_NAME schema",
+      "description": "Route name for fallback to internal gateway.",
+      "default": "fallback-to-internal-gateway",
       "internal": true
     },
     "ISTIO_EGRESS_GATEWAY_NAME": {
@@ -154,25 +202,6 @@
       "title": "The WAYPOINT_CPU_LIMIT schema",
       "description": "CPU limit for waypoint container.",
       "default": "500m",
-      "internal": true
-    },
-    "PUBLIC_SERVICE_NAME": {
-      "$id": "#/properties/PUBLIC_SERVICE_NAME",
-      "type": "string",
-      "title": "The PUBLIC_SERVICE_NAME schema",
-      "description": "Public frontend gateway service name.",
-      "internal": true
-    },
-    "PRIVATE_SERVICE": {
-      "type": "string",
-      "description": "Private frontend gateway identifier.",
-      "default": "private-frontend-gateway"
-    },
-    "PRIVATE_SERVICE_NAME": {
-      "$id": "#/properties/PRIVATE_SERVICE_NAME",
-      "type": "string",
-      "title": "The PRIVATE_SERVICE_NAME schema",
-      "description": "Private frontend gateway service name.",
       "internal": true
     },
     "SKIP_EGRESS_GATEWAY_CREATION": {

@@ -1,5 +1,34 @@
-{{- if eq .Values.SERVICE_MESH_TYPE "Istio" }}
 {{- if not .Values.SKIP_EGRESS_GATEWAY_CREATION }}
+{{- $gwName := .Values.ISTIO_EGRESS_GATEWAY_NAME }}
+kind: Service
+apiVersion: v1
+metadata:
+  name: '{{ .Values.EGRESS_GATEWAY_SERVICE_NAME }}'
+  annotations:
+    helm.sh/hook: "pre-install, pre-upgrade"
+    helm.sh/hook-weight: "110"
+    helm.sh/hook-delete-policy: "before-hook-creation"
+  labels:
+    {{- include "mesh.labels.service" (dict "root" . "name" .Values.EGRESS_GATEWAY_SERVICE_NAME ) | nindent 4 }}
+spec:
+  ports:
+    - name: web
+      protocol: TCP
+      port: 8080
+      targetPort: 8080
+  selector:
+    {{- if eq .Values.SERVICE_MESH_TYPE "Istio" }}
+    gateway.networking.k8s.io/gateway-name: {{ $gwName | quote }}
+    {{- else }}
+    app: '{{ .Values.EGRESS_GATEWAY_SERVICE }}'
+    {{- end }}
+  type: ClusterIP
+  sessionAffinity: None
+  ipFamilies:
+    - IPv4
+  ipFamilyPolicy: SingleStack
+  internalTrafficPolicy: Cluster
+{{- if eq .Values.SERVICE_MESH_TYPE "Istio" }}
 ---
 kind: Service
 apiVersion: v1
@@ -19,44 +48,12 @@ spec:
       targetPort: 8080
   selector:
     name: '{{ .Values.EGRESS_GATEWAY_SERVICE }}'
-  clusterIP: None
-  clusterIPs:
-    - None
   type: ClusterIP
   sessionAffinity: None
   ipFamilies:
     - IPv4
   ipFamilyPolicy: SingleStack
-  internalTrafficPolicy: Cluster 
----
-{{ $gwName := .Values.ISTIO_EGRESS_GATEWAY_NAME }}
-kind: Service
-apiVersion: v1
-metadata:
-  name: '{{ .Values.EGRESS_GATEWAY_SERVICE_NAME }}'
-  annotations:
-    helm.sh/hook: "post-install, post-upgrade"
-    helm.sh/hook-weight: "110"
-    helm.sh/hook-delete-policy: "before-hook-creation"
-  labels:
-    {{- include "mesh.labels.service" (dict "root" . "name" .Values.EGRESS_GATEWAY_SERVICE_NAME ) | nindent 4 }}
-spec:
-  ports:
-    - name: web
-      protocol: TCP
-      port: 8080
-      targetPort: 8080
-  selector:
-    gateway.networking.k8s.io/gateway-name: {{ $gwName | quote }}
-  clusterIP: None
-  clusterIPs:
-    - None
-  type: ClusterIP
-  sessionAffinity: None
-  ipFamilies:
-    - IPv4
-  ipFamilyPolicy: SingleStack
-  internalTrafficPolicy: Cluster 
+  internalTrafficPolicy: Cluster
 ---
 apiVersion: gateway.networking.k8s.io/v1
 kind: Gateway
@@ -67,6 +64,7 @@ metadata:
     helm.sh/hook-weight: "-100"
     helm.sh/hook-delete-policy: "before-hook-creation"
   labels:
+    deployer.cleanup/allow: "true"
     {{- include "mesh.labels" (dict "root" . "name" .Values.EGRESS_GATEWAY_SERVICE_NAME  "processedByOperator" true) | nindent 4 }}
 spec:
   gatewayClassName: istio
@@ -102,6 +100,7 @@ metadata:
     helm.sh/hook-weight: "-60"
     helm.sh/hook-delete-policy: "before-hook-creation"
   labels:
+    deployer.cleanup/allow: "true"
     {{- $routeName := printf "%s-route" $gwName | trunc 63 -}}
     {{- include "mesh.labels" (dict "root" . "name" $routeName "processedByOperator" true) | nindent 4 }}
 spec:

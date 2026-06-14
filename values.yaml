@@ -1,14 +1,23 @@
 ---
 ISTIO_PRIVATE_GATEWAY_NAME: private-gateway
 ISTIO_PUBLIC_GATEWAY_NAME: public-gateway
+
+# fallback services names
 PUBLIC_FB_SERVICE_NAME: public-fallback-service
 PRIVATE_FB_SERVICE_NAME: private-fallback-service
+INTERNAL_FB_SERVICE_NAME: internal-fallback-service
+
+# fallback services selector values
 PUBLIC_SERVICE: "public-frontend-gateway"
-PUBLIC_SERVICE_NAME: "public-gateway-service"
 PRIVATE_SERVICE: "private-frontend-gateway"
-PRIVATE_SERVICE_NAME: "private-gateway-service"
+INTERNAL_SERVICE: "internal-gateway"
+
+# parentRef name for internal fallback route
+INTERNAL_SERVICE_NAME: "internal-gateway-service"
+
 PRIVATE_GW_ROUTE_NAME: fallback-to-private-gateway
 PUBLIC_GW_ROUTE_NAME: fallback-to-public-gateway
+INTERNAL_GW_ROUTE_NAME: fallback-to-internal-gateway
 
 ISTIO_EGRESS_GATEWAY_NAME: egress-gateway
 EGRESS_FB_SERVICE_NAME: egress-fallback-service
@@ -21,7 +30,7 @@ WAYPOINT_NAME: waypoint
 APPLICATION_NAME: "Cloud-Core"
 SKIP_EGRESS_GATEWAY_CREATION: false
 SERVICE_NAME: "qubership-core-mesh"
-SERVICE_MESH_TYPE : "Istio"   # or "Core to disable"
+SERVICE_MESH_TYPE : "Core"   # or "Istio"
 
 CLOUD_TOPOLOGY_KEY: kubernetes.io/hostname
 
