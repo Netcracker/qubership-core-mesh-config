@@ -16,8 +16,8 @@ spec:
   rules:
     - matches:
         - path:
-            type: PathPrefix
-            value: /
+            type: RegularExpression
+            value: .*
       backendRefs:
         - name: '{{ .Values.PRIVATE_FB_SERVICE_NAME }}'
           port: 8080
@@ -39,8 +39,8 @@ spec:
   rules:
     - matches:
         - path:
-            type: PathPrefix
-            value: /
+            type: RegularExpression
+            value: .*
       backendRefs:
         - name: '{{ .Values.PUBLIC_FB_SERVICE_NAME }}'
           port: 8080
@@ -61,8 +61,8 @@ spec:
   rules:
     - matches:
         - path:
-            type: PathPrefix
-            value: /
+            type: RegularExpression
+            value: .*
       backendRefs:
         - group: ''
           kind: Service
