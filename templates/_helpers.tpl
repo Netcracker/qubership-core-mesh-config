@@ -12,6 +12,7 @@
 {{- $root := .root | default . -}}
 {{- $name := .name | default $root.Values.SERVICE_NAME -}}
 app.kubernetes.io/name: {{ $name | quote }}
+name: {{ $name | quote }}
 app.kubernetes.io/part-of: {{ $root.Values.APPLICATION_NAME | quote }}
 app.kubernetes.io/managed-by: {{ "Helm" | quote }}
 {{- if $root.Values.DEPLOYMENT_SESSION_ID }}
