@@ -49,6 +49,7 @@ app.kubernetes.io/processed-by-operator: {{ "istiod" | quote }}
 {{- $root := .root -}}
 {{- $name := .name -}}
 {{- include "mesh.labels.common" (dict "root" $root "name" $name )}}
+name: {{ $name | quote }}
 {{- end -}}
 
 {{- define "mesh.hpa" -}}
