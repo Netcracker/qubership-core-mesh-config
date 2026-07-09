@@ -122,9 +122,6 @@ metadata:
     helm.sh/hook-delete-policy: "before-hook-creation"
 data:
   deployment: |
-    metadata:
-      labels:
-        name: {{ $name | quote }}
     spec:
       replicas: {{ default 1 $values.replicas }}
       template:
