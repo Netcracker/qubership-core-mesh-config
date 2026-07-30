@@ -65,7 +65,7 @@ metadata:
     helm.sh/hook-delete-policy: "before-hook-creation"
   labels:
     deployer.cleanup/allow: "true"
-    {{- include "mesh.labels" (dict "root" . "name" .Values.EGRESS_GATEWAY_SERVICE_NAME  "processedByOperator" true) | nindent 4 }}
+    {{- include "mesh.labels.gateway" (dict "root" . "name" .Values.EGRESS_GATEWAY_SERVICE_NAME  "processedByOperator" true) | nindent 4 }}
 spec:
   gatewayClassName: istio
   infrastructure:
