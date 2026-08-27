@@ -4,10 +4,6 @@ kind: Service
 apiVersion: v1
 metadata:
   name: '{{ .Values.EGRESS_GATEWAY_SERVICE_NAME }}'
-  annotations:
-    helm.sh/hook: "pre-install, pre-upgrade"
-    helm.sh/hook-weight: "110"
-    helm.sh/hook-delete-policy: "before-hook-creation"
   labels:
     {{- include "mesh.labels.service" (dict "root" . "name" .Values.EGRESS_GATEWAY_SERVICE_NAME ) | nindent 4 }}
 spec:
@@ -34,10 +30,6 @@ kind: Service
 apiVersion: v1
 metadata:
   name: '{{ .Values.EGRESS_FB_SERVICE_NAME }}'
-  annotations:
-    helm.sh/hook: "pre-install, pre-upgrade"
-    helm.sh/hook-weight: "-80"
-    helm.sh/hook-delete-policy: "before-hook-creation"
   labels:
     {{- include "mesh.labels.service" (dict "root" . "name" .Values.EGRESS_FB_SERVICE_NAME ) | nindent 4 }}
 spec:
@@ -60,9 +52,7 @@ kind: Gateway
 metadata:
   name: {{ $gwName }}
   annotations:
-    helm.sh/hook: "pre-install, pre-upgrade"
-    helm.sh/hook-weight: "-100"
-    helm.sh/hook-delete-policy: "before-hook-creation"
+    networking.istio.io/service-type: ClusterIP
   labels:
     deployer.cleanup/allow: "true"
     {{- include "mesh.labels" (dict "root" . "name" .Values.EGRESS_GATEWAY_SERVICE_NAME  "processedByOperator" true) | nindent 4 }}
@@ -95,10 +85,6 @@ apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
 metadata:
   name: {{ printf "%s-route" $gwName }}
-  annotations:
-    helm.sh/hook: "pre-install, pre-upgrade"
-    helm.sh/hook-weight: "-60"
-    helm.sh/hook-delete-policy: "before-hook-creation"
   labels:
     deployer.cleanup/allow: "true"
     {{- $routeName := printf "%s-route" $gwName | trunc 63 -}}
@@ -109,8 +95,8 @@ spec:
   rules:
     - matches:
         - path:
-            type: PathPrefix
-            value: /
+            type: RegularExpression
+            value: .*
       backendRefs:
         - name: '{{ .Values.EGRESS_FB_SERVICE_NAME }}'
           port: 8080
