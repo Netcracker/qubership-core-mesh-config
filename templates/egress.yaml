@@ -115,6 +115,55 @@ spec:
         - name: '{{ .Values.EGRESS_FB_SERVICE_NAME }}'
           port: 8080
 ---
+# TLS origination on the egress gateway. A DestinationRule that names a
+# credentialName makes istiod push the referenced Secret to this gateway over SDS,
+# and istiod first checks that the gateway's ServiceAccount may read Secrets in the
+# namespace. That SubjectAccessReview carries no resource name, so a Role narrowed
+# with resourceNames never satisfies it and the certificate is silently withheld:
+# the DestinationRule still renders, and the handshake fails with
+# "remote connection failure" and no error on either side.
+#
+# Only client certificates need this. istiod resolves a CA from <name>-cacert by a
+# path that skips the check, which is why one-way origination works without it and
+# mutual TLS does not.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: {{ printf "%s-secret-reader" $gwName }}
+  annotations:
+    helm.sh/hook: "pre-install, pre-upgrade"
+    helm.sh/hook-weight: "-90"
+    helm.sh/hook-delete-policy: "before-hook-creation"
+  labels:
+    deployer.cleanup/allow: "true"
+    {{- $roleName := printf "%s-secret-reader" $gwName | trunc 63 -}}
+    {{- include "mesh.labels" (dict "root" . "name" $roleName "processedByOperator" true) | nindent 4 }}
+rules:
+  - apiGroups: [""]
+    resources: ["secrets"]
+    verbs: ["get", "watch", "list"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: {{ printf "%s-secret-reader" $gwName }}
+  annotations:
+    helm.sh/hook: "pre-install, pre-upgrade"
+    helm.sh/hook-weight: "-85"
+    helm.sh/hook-delete-policy: "before-hook-creation"
+  labels:
+    deployer.cleanup/allow: "true"
+    {{- $bindingName := printf "%s-secret-reader" $gwName | trunc 63 -}}
+    {{- include "mesh.labels" (dict "root" . "name" $bindingName "processedByOperator" true) | nindent 4 }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: {{ printf "%s-secret-reader" $gwName }}
+subjects:
+  - kind: ServiceAccount
+    name: {{ printf "%s-istio" $gwName }}
+    namespace: {{ .Release.Namespace }}
+---
 {{ include "mesh.hpa" (dict
   "root" .
   "name" (printf "%s-istio" $gwName)
