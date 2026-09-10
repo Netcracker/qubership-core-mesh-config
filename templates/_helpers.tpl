@@ -153,4 +153,14 @@ data:
               matchLabels:
                 gateway.networking.k8s.io/gateway-name: {{ $name }}
 {{- end }}
+  {{- /*
+    Istio defaults a Gateway Service to LoadBalancer. Where nothing assigns an external
+    address the Gateway never reaches Programmed, and the pre-install hook that creates it
+    never completes, so the whole release stalls. The mesh-wide `gatewayClasses` default
+    carries the same ClusterIP, but it belongs to the mesh installation, which this chart
+    does not own and cannot require.
+  */}}
+  service: |
+    spec:
+      type: ClusterIP
 {{- end -}}
