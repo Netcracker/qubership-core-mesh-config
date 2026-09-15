@@ -131,9 +131,8 @@ kind: Role
 metadata:
   name: {{ printf "%s-secret-reader" $gwName }}
   labels:
-    deployer.cleanup/allow: "true"
     {{- $roleName := printf "%s-secret-reader" $gwName | trunc 63 -}}
-    {{- include "mesh.labels" (dict "root" . "name" $roleName "processedByOperator" true) | nindent 4 }}
+    {{- include "mesh.labels" (dict "root" . "name" $roleName) | nindent 4 }}
 rules:
   - apiGroups: [""]
     resources: ["secrets"]
@@ -144,9 +143,8 @@ kind: RoleBinding
 metadata:
   name: {{ printf "%s-secret-reader" $gwName }}
   labels:
-    deployer.cleanup/allow: "true"
     {{- $bindingName := printf "%s-secret-reader" $gwName | trunc 63 -}}
-    {{- include "mesh.labels" (dict "root" . "name" $bindingName "processedByOperator" true) | nindent 4 }}
+    {{- include "mesh.labels" (dict "root" . "name" $bindingName) | nindent 4 }}
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
