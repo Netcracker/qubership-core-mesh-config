@@ -19,7 +19,7 @@ metadata:
           disabled: true
   labels:
     deployer.cleanup/allow: "true"
-    {{- include "mesh.labels" (dict "root" . "name" $publicGwName "processedByOperator" true) | nindent 4 }}
+    {{- include "mesh.labels.gateway" (dict "root" . "name" $publicGwName "processedByOperator" true) | nindent 4 }}
 spec:
   gatewayClassName: istio
   infrastructure:
@@ -67,7 +67,7 @@ metadata:
           disabled: true
   labels:
     deployer.cleanup/allow: "true"
-    {{- include "mesh.labels" (dict "root" . "name" $privateGwName "processedByOperator" true) | nindent 4 }}
+    {{- include "mesh.labels.gateway" (dict "root" . "name" $privateGwName "processedByOperator" true) | nindent 4 }}
 spec:
   gatewayClassName: istio
   infrastructure:
