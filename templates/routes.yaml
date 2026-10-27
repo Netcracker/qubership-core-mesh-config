@@ -37,7 +37,9 @@ spec:
         - name: '{{ .Values.PUBLIC_FB_SERVICE_NAME }}'
           port: 8080
 ---
-# internal fallback route should be created not earlier than it's parent service
+# Catch-all for internal-gateway-service. Istio puts this regex after the other routes only when
+# their parentRefs match this one, which sets no port. A route to internal-gateway-service that
+# sets a port lands in a separate VirtualService, and this route shadows it when created earlier.
 apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
 metadata:
