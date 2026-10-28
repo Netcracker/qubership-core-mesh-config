@@ -45,10 +45,8 @@ app.kubernetes.io/processed-by-operator: {{ "istiod" | quote }}
 {{- end -}}
 
 {{- define "mesh.labels.gateway" -}}
-{{- $root := .root -}}
-{{- $name := .name -}}
-{{- include "mesh.labels" (dict "root" $root "name" $name )}}
-name: {{ $name | quote }}
+{{- include "mesh.labels" . }}
+name: {{ .name | quote }}
 {{- end -}}
 
 {{- define "mesh.labels.service" -}}
