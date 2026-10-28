@@ -6,7 +6,7 @@ metadata:
   name: {{ $waypointName }}
   labels:
     deployer.cleanup/allow: "true"
-    {{- include "mesh.labels" (dict "root" . "name" $waypointName "processedByOperator" true) | nindent 4 }}
+    {{- include "mesh.labels.gateway" (dict "root" . "name" $waypointName "processedByOperator" true) | nindent 4 }}
     istio.io/waypoint-for: service
   annotations:
     proxy.istio.io/config: |

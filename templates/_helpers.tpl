@@ -44,6 +44,10 @@ app.kubernetes.io/processed-by-operator: {{ "istiod" | quote }}
 {{- end -}}
 {{- end -}}
 
+{{- define "mesh.labels.gateway" -}}
+{{- include "mesh.labels" . }}
+name: {{ .name | quote }}
+{{- end -}}
 
 {{- define "mesh.labels.service" -}}
 {{- $root := .root -}}
@@ -115,7 +119,7 @@ kind: ConfigMap
 metadata:
   name: {{ printf "%s-pod-options" $name }}
   labels:
-    {{- include "mesh.labels" (dict "root" $values.root "name" (printf "%s-pod-options" $name | trunc 63)) | nindent 4 }}
+    {{- include "mesh.labels.gateway" (dict "root" $values.root "name" (printf "%s-pod-options" $name | trunc 63)) | nindent 4 }}
 data:
   deployment: |
     spec:
