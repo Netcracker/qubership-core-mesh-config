@@ -1,0 +1,19 @@
+{{- if eq .Values.SERVICE_MESH_TYPE "Istio" }}
+{{- $publicGwName := .Values.ISTIO_PUBLIC_GATEWAY_NAME }}
+---
+# Deny-unless-permit: an ALLOW policy without rules matches nothing, so all traffic to the
+# public gateway is denied until other ALLOW policies (provided by other repos) permit it.
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  name: '{{ $publicGwName }}-deny-unless-permit'
+  labels:
+    deployer.cleanup/allow: "true"
+    {{- include "mesh.labels.service" (dict "root" . "name" (printf "%s-authz" $publicGwName)) | nindent 4 }}
+spec:
+  targetRefs:
+    - group: gateway.networking.k8s.io
+      kind: Gateway
+      name: '{{ $publicGwName }}'
+  action: ALLOW
+{{- end }}
